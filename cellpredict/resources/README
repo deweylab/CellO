@@ -1,0 +1,9 @@
+Resources for the classifier. This directory will
+need to be populated with:
+* clr.pickle - pre-trained cascaded logistic regression model 
+* ir.pickle - pre-trained isotonic regression model 
+* tpr.pickle - pre-trained True Path Rule model 
+* gene_order.json - order of genes required in feature vector
+* gene_transcript.hg38_p10.tsv - mapping of genes to transcripts 
+* kallisto_reference.hg38_v27 - pre-built Kallisto reference 
+ 
