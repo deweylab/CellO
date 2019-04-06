@@ -1,0 +1,4 @@
+This is the code implementing the hierarchical machine
+learning classifiers. A lot of this code needs to be cleaned
+up for production. There's a lot of old code from from past
+research directions.
