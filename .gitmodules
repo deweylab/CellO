@@ -1,3 +1,6 @@
-[submodule "kallisto"]
-	path = kallisto
-	url = https://github.com/pachterlab/kallisto.git
+[submodule "onto_lib"]
+	path = onto_lib
+	url = https://github.com/mbernste/onto_lib.git
+[submodule "graph_lib"]
+	path = graph_lib
+	url = https://github.com/mbernste/graph_lib.git
