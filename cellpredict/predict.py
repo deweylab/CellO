@@ -15,13 +15,25 @@ from machine_learning import learners
 
 resource_package = __name__
 
+
+ALGO_TO_SINGLE_CELL_THRESH = {
+    'IR': 0.1,
+    'TPR': 0.05,
+    'CLR': 0.45
+}
+
+ALGO_TO_BULK_THRESH = {
+    'IR': 0.15, 
+    'TPR': 0.1,
+    'CLR': 0.3
+}
+
 def main():
     usage = "" # TODO 
     parser = OptionParser(usage=usage)
     #parser.add_option("-a", "--a_descrip", action="store_true", help="This is a flat")
     parser.add_option("-a", "--algo", help="Hierarchical classification algorithm to apply. Must be one of: 'IR' - Isotonic regression, 'CLR' - cascaded logistic regression, 'TPR' - True Path Rule")
-    parser.add_option("-s", "--single_cell_precision", help="Output hard predictions for a given estimated precision-scores according to performance on a single-cell test set")
-    parser.add_option("-b", "--bulk_precision", help="Output hard predictions for a given estimated precision-scores according to performance on a bulk RNA-seq test set")
+    parser.add_option("-s", "--single_cell", action="store_true", help="Perform predictions on single-cell data")
     (options, args) = parser.parse_args()
 
     queries_f = args[0]
@@ -29,21 +41,22 @@ def main():
     if options.algo:
         algo = options.algo
 
+    # Set the prediction threshold to achieve 0.9 precision
+    if options.single_cell:
+        thresh = ALGO_TO_SINGLE_CELL_THRESH[algo]
+    else:
+        thresh = ALGO_TO_BULK_THRESH[algo]
+
+    # Load the data queries file
     with open(queries_f, 'r') as f:
         queries = [
             [float(x) for x in l.split()]
             for l in f
         ]
 
-    label_to_confs = predict(queries, algo)
-    label_order = label_to_confs[0].keys()
-
-    da = [
-        (label_to_conf[k] for k in label_order)
-        for label_to_conf in label_to_confs
-    ]
-    df = DataFrame(data=da, columns=label_order)
-    df.to_csv('prediction_results.tsv', sep='\t')
+    df, df_scores = predict(queries, algo)
+    df.to_csv('predictions.tsv', sep='\t')
+    df_scores.to_csv('prediction_scores.tsv', sep='\t')
 
 def predict(queries, algo):
     if algo == 'IR':
@@ -68,7 +81,20 @@ def predict(queries, algo):
         }
         for label_to_conf in label_to_confs
     ]
-    return label_to_confs 
+
+    label_order = label_to_confs[0].keys()
+
+    da = [
+        (label_to_conf[k] > thresh for k in label_order)
+        for label_to_conf in label_to_confs
+    ]
+    da_scores = [
+        (label_to_conf[k] > thresh for k in label_order)
+        for label_to_conf in label_to_confs
+    ]
+    df = DataFrame(data=da, columns=label_order)
+    df_scores = DataFrame(data=da_scores, columns=label_order)
+    return df, df_scores
 
 
 if __name__ == "__main__":
