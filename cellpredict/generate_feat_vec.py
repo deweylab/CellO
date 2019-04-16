@@ -20,11 +20,11 @@ FRAGMENT_LENGTH = 200
 FRAGMENT_STDEV = 30
 
 resource_package = __name__
-GENE_TRANSCRIPT_MAPPING_F = resource_filename(
+GENE_TRANSCRIPT_MAPPING_F = pr.resource_filename(
     resource_package, join("resources", "gene_transcript.hg38_p10.tsv")) 
-GENE_ORDER = resource_filename(
+GENE_ORDER = pr.resource_filename(
     resource_package, join("resources", "gene_order.json"))
-KALLISTO_REF = resource_filename(
+KALLISTO_REF = pr.resource_filename(
     resource_package, join("resources", "kallisto_reference.hg38_v27"))
 
 def main():
@@ -51,7 +51,7 @@ def main():
     with open(GENE_ORDER, 'r') as f:
         gene_order = json.load(f)
 
-    #_run_kallisto(KALLISTO_REF, fastq_fs, is_paired, tmp)
+    _run_kallisto(KALLISTO_REF, fastq_fs, is_paired, tmp)
 
     # Obtain gene-level counts
     kallisto_target_to_count = parse_kallisto_out(
