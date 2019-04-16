@@ -54,11 +54,11 @@ def main():
             for l in f
         ]
 
-    df, df_scores = predict(queries, algo)
+    df, df_scores = predict(queries, algo, thresh)
     df.to_csv('predictions.tsv', sep='\t')
     df_scores.to_csv('prediction_scores.tsv', sep='\t')
 
-def predict(queries, algo):
+def predict(queries, algo, thresh):
     if algo == 'IR':
         model_f = pr.resource_filename(
             resource_package, join("resources", "ir.pickle")
@@ -85,11 +85,11 @@ def predict(queries, algo):
     label_order = label_to_confs[0].keys()
 
     da = [
-        (label_to_conf[k] > thresh for k in label_order)
+        (int(label_to_conf[k] > thresh) for k in label_order)
         for label_to_conf in label_to_confs
     ]
     da_scores = [
-        (label_to_conf[k] > thresh for k in label_order)
+        (label_to_conf[k] for k in label_order)
         for label_to_conf in label_to_confs
     ]
     df = DataFrame(data=da, columns=label_order)
