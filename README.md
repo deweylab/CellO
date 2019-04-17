@@ -8,7 +8,7 @@ To download the pre-built Kallisto reference and pre-trained classifiers, run th
 
 ``bash download_resources.sh`` 
 
-Finally, make sure that  ``onto_lib`` and ``machine_learning`` are accessible via your ``PYTHONPATH`` environment variable:
+Finally, make sure that  ``onto_lib``, ``graph_libe``, and ``machine_learning`` are accessible via your ``PYTHONPATH`` environment variable:
 
 ``cd CellO``
 
