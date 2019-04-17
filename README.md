@@ -1,1 +1,1 @@
-# CellO: Cell Ontology-based classification ![](https://raw.githubusercontent.com/deweylab/CellO/master/cello.png|width=10)
+# CellO: Cell Ontology-based classification <img src="https://raw.githubusercontent.com/deweylab/CellO/master/cello.png" alt="alt text" width="70px" height="70px">
