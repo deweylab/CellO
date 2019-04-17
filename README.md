@@ -14,7 +14,7 @@ Finally, make sure that  ``onto_lib``, ``graph_lib``, and ``machine_learning`` a
 
 ``export PYTHONPATH:($pwd):$PYTHONPATH``
 
-## Build feature vector from raw-reads
+## Build a feature vector from a set of raw RNA-seq reads
 
 To generate a feature vector from the raw reads stored in a set of FASTQ files, run the command: 
 
