@@ -4,7 +4,7 @@
 
 The Python package dependencies are described in ``requirements.txt``. This package uses Kallisto to create feature vectors from a raw RNA-seq reads and must also be installed.  
 
-To download the pre-build Kallisto reference and pre-trained classifiers, run the command: 
+To download the pre-built Kallisto reference and pre-trained classifiers, run the command: 
 
 ``bash download_resources.sh`` 
 
