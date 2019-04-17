@@ -8,17 +8,17 @@ To download the pre-built Kallisto reference and pre-trained classifiers, run th
 
 ``bash download_resources.sh`` 
 
-Finally, make sure that  ``onto_lib``, ``graph_libe``, and ``machine_learning`` are accessible via your ``PYTHONPATH`` environment variable:
+Finally, make sure that  ``onto_lib``, ``graph_lib``, and ``machine_learning`` are accessible via your ``PYTHONPATH`` environment variable:
 
 ``cd CellO``
 
 ``export PYTHONPATH:($pwd):$PYTHONPATH``
 
-## Build feature vectors from raw-reads
+## Build feature vector from raw-reads
 
-To generate feature vectors from the raw reads stored in a FASTQ file, run the command: 
+To generate a feature vector from the raw reads stored in a set of FASTQ files, run the command: 
 
-``python cellpredict/generate_feature_vec.py <path to FASTQ file> <path to directory in which temporary outputs are stored> -o <path to output file>``
+``python cellpredict/generate_feature_vec.py <comma-separated paths to FASTQ files> <path to directory in which temporary outputs are stored> -o <path to output file>``
 
 ## Run the classifier 
 
