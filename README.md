@@ -1,5 +1,9 @@
 # CellO: *Cell O*ntology-based classification &nbsp; <img src="https://raw.githubusercontent.com/deweylab/CellO/master/cello.png" alt="alt text" width="70px" height="70px">
 
+## About
+
+CellO (Cell Ontology-based classification) is a Python package for performing cell type classification of RNA-seq data. CellO makes hierarchical predictions against the [Cell Ontology](http://www.obofoundry.org/ontology/cl.html). 
+
 ## Setup 
 
 The Python package dependencies are described in ``requirements.txt``. This package uses [Kallisto](https://pachterlab.github.io/kallisto/) to create feature vectors from a raw RNA-seq reads and must also be installed.  
