@@ -6,9 +6,9 @@ CellO (Cell Ontology-based classification) is a Python package for performing ce
 
 ## Setup 
 
-The Python package dependencies are described in ``requirements.txt``. This package uses [Kallisto](https://pachterlab.github.io/kallisto/) to create feature vectors from a raw RNA-seq reads and must also be installed.  
+The Python package dependencies are described in ``requirements.txt``. This package uses [kallisto](https://pachterlab.github.io/kallisto/) to create feature vectors from a raw RNA-seq reads and must also be installed.  
 
-To download the pre-built Kallisto reference and pre-trained classifiers, run the command: 
+To download the pre-built kallisto reference and pre-trained classifiers, run the command: 
 
 ``bash download_resources.sh`` 
 
