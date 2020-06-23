@@ -6,9 +6,41 @@ CellO (Cell Ontology-based classification) is a Python package for performing ce
 
 ## Setup 
 
-The Python package dependencies are described in ``requirements.txt``. This package uses [kallisto](https://pachterlab.github.io/kallisto/) to create feature vectors from a raw RNA-seq reads and must also be installed.  
+CellO requires some resources to run out-of-the-box. These resources can be downloaded with the following command:
 
-To download the pre-built kallisto reference and pre-trained classifiers, run the command: 
+``bash download_resources.sh``
+
+This command will download and upack a ``resources`` directory that will be stored in the ``cello`` Python package.
+
+Next, wet the PYTHON path to point to all packages in this repository (specifically, ``cell``, ``graph_lib`` and ``onto_lib_py3``):
+
+``export PYTHONPATH=$(pwd):$PYTHONPATH``
+
+The Python package dependencies are described in ``requirements.txt``. These dependencies can be installed within a Python virtual environment in one fell swoop with the following commands:
+
+``
+python -m venv cello_env
+source cello_env/bin/activate
+pip install -r requirements.txt 
+`` 
+
+## Running CellO
+
+CellO uses a supervised machine learning classifier to classify the cell types within a dataset. Notably, the input expression data's 
+genes must match the genes expected by the trained classifier.  We provide pre-trained classifiers; however, in the event that your
+data's genes do not match the genes expected by these classifiers, you can train CellO to operate specifically on your dataset.
+
+Given an expression matrix (stored either as a TSV/CSV file, HDF5 file, or 10x formatted directory), you can train CellO to operate
+on this datasets genes using the ``cello_train_model.py`` command. In the ``example_input`` directory, we have a gene expression matrix
+from []() to provide an example. Specifically, to train a model on this dataset's genes, we would run the following command:
+
+``python cell_train_model.py example_input/``.
+
+
+This package uses [Kallisto](https://pachterlab.github.io/kallisto/)
+
+
+To download the pre-built Kallisto reference and pre-trained classifiers, run the command: 
 
 ``bash download_resources.sh`` 
 
@@ -33,3 +65,5 @@ To run the classifier on a feature vector:
 This command will create two files: ``predictions.tsv`` stores the binarized predictions and ``prediction_scores.tsv`` stores the raw probability scores for each cell type.
 
 
+=======
+# cell-type-classification-paper
