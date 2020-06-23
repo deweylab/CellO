@@ -24,7 +24,15 @@ pip install -r requirements.txt
 
 ## Running CellO
 
-CellO uses a supervised machine learning classifier to classify the cell types within a dataset. CellO takes as input a gene expression matrix, which can be in multiple formats: a TSV/CSV file, HDF5 file, or 10x formatted directory.  
+### Overview
+
+CellO uses a supervised machine learning classifier to classify the cell types within a dataset. CellO takes as input a gene expression matrix. CellO accepts data in multiple formats:
+* TSV
+* CSV
+* HDF5
+* 10x formatted directory 
+
+### Running CellO with a pre-trained model
 
 Notably, the input expression data's genes must match the genes expected by the trained classifier.  If the genes match, then CellO will use a pre-trained classifier to classify the expression profiles (i.e. cells) in the input dataset. 
 
@@ -32,7 +40,10 @@ To provide an example, here is how you would run CellO on an example dataset sto
 
 ``python cello_predict.py``
 
+### Training CellO with a new gene set
+
 If the genes in the input file do not match the genes on which the model was trained, then CellO will output an error message:
+
 
 To circumvent this issue, CellO can be told to train a classifier with only those genes included in the given input dataset.  
 
