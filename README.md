@@ -12,7 +12,7 @@ CellO requires some resources to run out-of-the-box. These resources can be down
 
 This command will download and upack a ``resources`` directory that will be stored in the ``cello`` Python package.
 
-Next, wet the PYTHON path to point to all packages in this repository (specifically, ``cell``, ``graph_lib`` and ``onto_lib_py3``):
+Next, wet the PYTHON path to point to all packages in this repository:
 
 ``export PYTHONPATH=$(pwd):$PYTHONPATH``
 
@@ -24,17 +24,22 @@ source cello_env/bin/activate
 pip install -r requirements.txt 
 `` 
 
-## Running CellO
+## Running CellO with a pretrained classifier
 
 CellO uses a supervised machine learning classifier to classify the cell types within a dataset. Notably, the input expression data's 
-genes must match the genes expected by the trained classifier.  We provide pre-trained classifiers; however, in the event that your
+genes must match the genes expected by the trained classifier. CellO takes as input a gene expression matrix, which can be in multiple formats: a TSV/CSV file, HDF5 file, or 10x formatted directory.  
+
+however, in the event that your
 data's genes do not match the genes expected by these classifiers, you can train CellO to operate specifically on your dataset.
 
 Given an expression matrix (stored either as a TSV/CSV file, HDF5 file, or 10x formatted directory), you can train CellO to operate
 on this datasets genes using the ``cello_train_model.py`` command. In the ``example_input`` directory, we have a gene expression matrix
 from []() to provide an example. Specifically, to train a model on this dataset's genes, we would run the following command:
 
-``python cell_train_model.py example_input/``.
+``python cell_train_model.py example_input/LX653_tumor.tsv -d TSV -a IR -r -o model.dill ./example_input/LX653_tumor.tsv ``
+
+This command can be interpreted as follows: ``-d TSV`` tells CellO that the input is a tab-separated value file, ``-a IR`` tells CellO to use Isotonic Regression correction on the probabilities (see manuscript for details), ``-r`` tells CellO that the input matrix's rows are cells and the columns are genes (by default CellO expects rows to be genes and columns to be cells), ``-o model.dill`` tells CellO to write the trained model to the file ``model.dill``, and finally ``./example_input/LX653_tumor.tsv`` is the file storing the expression matrix itself.
+
 
 
 This package uses [Kallisto](https://pachterlab.github.io/kallisto/)
