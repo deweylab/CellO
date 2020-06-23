@@ -10,9 +10,7 @@ CellO requires some resources to run out-of-the-box. These resources can be down
 
 ``bash download_resources.sh``
 
-This command will download and upack a ``resources`` directory that will be stored in the ``cello`` Python package.
-
-Next, wet the PYTHON path to point to all packages in this repository:
+This command will download and upack a ``resources`` directory that will be stored in the ``cello`` Python package.  Next, we set the PYTHON path to point to all packages in this repository:
 
 ``export PYTHONPATH=$(pwd):$PYTHONPATH``
 
@@ -24,51 +22,36 @@ source cello_env/bin/activate
 pip install -r requirements.txt 
 `` 
 
-## Running CellO with a pretrained classifier
+## Running CellO
 
-CellO uses a supervised machine learning classifier to classify the cell types within a dataset. Notably, the input expression data's 
-genes must match the genes expected by the trained classifier. CellO takes as input a gene expression matrix, which can be in multiple formats: a TSV/CSV file, HDF5 file, or 10x formatted directory.  
+CellO uses a supervised machine learning classifier to classify the cell types within a dataset. CellO takes as input a gene expression matrix, which can be in multiple formats: a TSV/CSV file, HDF5 file, or 10x formatted directory.  
 
-however, in the event that your
-data's genes do not match the genes expected by these classifiers, you can train CellO to operate specifically on your dataset.
+Notably, the input expression data's genes must match the genes expected by the trained classifier.  If the genes match, then CellO will use a pre-trained classifier to classify the expression profiles (i.e. cells) in the input dataset. 
 
-Given an expression matrix (stored either as a TSV/CSV file, HDF5 file, or 10x formatted directory), you can train CellO to operate
-on this datasets genes using the ``cello_train_model.py`` command. In the ``example_input`` directory, we have a gene expression matrix
-from []() to provide an example. Specifically, to train a model on this dataset's genes, we would run the following command:
+To provide an example, here is how you would run CellO on an example dataset stored in ``example_input/``. This dataset is a set of XXXXXX monocytes distributed by Chromium 10x.  To run CellO on this dataset, run this command:
 
-``python cell_train_model.py example_input/LX653_tumor.tsv -d TSV -a IR -r -o model.dill ./example_input/LX653_tumor.tsv ``
+``python cello_predict.py``
 
-This command can be interpreted as follows: ``-d TSV`` tells CellO that the input is a tab-separated value file, ``-a IR`` tells CellO to use Isotonic Regression correction on the probabilities (see manuscript for details), ``-r`` tells CellO that the input matrix's rows are cells and the columns are genes (by default CellO expects rows to be genes and columns to be cells), ``-o model.dill`` tells CellO to write the trained model to the file ``model.dill``, and finally ``./example_input/LX653_tumor.tsv`` is the file storing the expression matrix itself.
+If the genes in the input file do not match the genes on which the model was trained, then CellO will output an error message:
+
+To circumvent this issue, CellO can be told to train a classifier with only those genes included in the given input dataset.  
 
 
+Note that the ``-t`` flag tells CellO to train a fresh classifier on the genes contained in the input file.  The parameter ``--X XXXXXXX`` tells CellO to write the trained model to the file ``XXXXXXX``. Training CellO usually takes under an hour.
 
-This package uses [Kallisto](https://pachterlab.github.io/kallisto/)
+To run CellO on a custom, pre-trained model, run CellO as follows:
 
+``python cell_predict.py -m ``
 
-To download the pre-built Kallisto reference and pre-trained classifiers, run the command: 
-
-``bash download_resources.sh`` 
-
-Finally, make sure that  ``onto_lib``, ``graph_lib``, and ``machine_learning`` are accessible via your ``PYTHONPATH`` environment variable:
-
-``cd CellO``
-
-``export PYTHONPATH:($pwd):$PYTHONPATH``
-
-## Build a feature vector from a set of raw RNA-seq reads
-
-To generate a feature vector from the raw reads stored in a set of FASTQ files, run the command: 
-
-``python cellpredict/generate_feat_vec.py <comma-separated paths to FASTQ files> <path to directory in which temporary outputs are stored> -o <path to output file>``
-
-## Run the classifier 
-
-To run the classifier on a feature vector: 
-
-``python cellpredict/predict.py <output file from generate_feat_vec.py>``
-
-This command will create two files: ``predictions.tsv`` stores the binarized predictions and ``prediction_scores.tsv`` stores the raw probability scores for each cell type.
+Note that ``-m XXXXXX`` tells CellO to use the model stored in ``XXXXXXXX``.
 
 
-=======
-# cell-type-classification-paper
+## Quantifying reads with Kallisto to match CellO's pre-trained models
+
+We provide a script for quantifying raw reads with [Kallisto](https://pachterlab.github.io/kallisto/). Note that to run this script, Kallisto must be installed and available in your ``PATH`` environment variable.  This script will output an expression profile that includes all of the genes that CellO is expecting and thus, expression profiles created with this script are automatically compatible with CellO.
+
+This script requires a preprocessed kallisto reference.  To download the pre-built Kallisto reference that is compatible with CellO, run the command:
+
+``bash download_kallisto_reference.sh``
+
+This command will download a directory called ``kallisto_refernce`` in the current directory.
