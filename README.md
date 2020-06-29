@@ -9,8 +9,8 @@ CellO (Cell Ontology-based classification) is a Python package for performing ce
 The Python package dependencies are described in ``requirements.txt``. These dependencies can be installed within a Python virtual environment in one fell swoop with the following commands:
 
 ``
-python -m venv cello_env\ 
-source cello_env/bin/activate\ 
+python -m venv cello_env \ 
+source cello_env/bin/activate \ 
 pip install -r requirements.txt  
 `` 
 
