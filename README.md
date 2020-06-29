@@ -42,11 +42,11 @@ Notably, the input expression data's genes must match the genes expected by the 
 
 To provide an example, here is how you would run CellO on a toy dataset stored in ``example_input/Zheng_PBMC_10x``. This dataset is a set of 1,000 cells subsampled from the [Zheng et al. (2017)](https://www.nature.com/articles/ncomms14049) dataset.  To run CellO on this dataset, run this command:
 
-``python cello_predict.py -d 10x -u COUNTS -s 3_PRIME example_input/Zheng_PBMC_10x -o output/test``
+``python cello_predict.py -d 10x -u COUNTS -s 3_PRIME example_input/Zheng_PBMC_10x -o test``
 
 Note that ``-o test`` specifies the all output files will have the prefix "test". The ``-d`` specifies the input format, ``-u`` specifies the units of the expression matrix, and ``-s`` specifies the assay-type.  For a full list of available formats, units, assay-types, run:
 
-``python cello_predity.py -h``
+``python cello_predict.py -h``
 
 ### Running CellO with a gene set that is incompatible with a pre-trained model
 
