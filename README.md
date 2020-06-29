@@ -32,6 +32,8 @@ CellO uses a supervised machine learning classifier to classify the cell types w
 * HDF5
 * 10x formatted directory 
 
+CellO outputs two tables: a NxM classification probability table of N cells and M cell types where element (i,j) is a probability value that describes CellO's confidence that cell i is of cell type j.  CellO also outputs a binary-decision matrix where element (i,j) is 1 if CellO predicts cell i to be of cell j and is 0 otherwise.
+
 ### Running CellO with a pre-trained model
 
 Notably, the input expression data's genes must match the genes expected by the trained classifier.  If the genes match, then CellO will use a pre-trained classifier to classify the expression profiles (i.e. cells) in the input dataset. 
