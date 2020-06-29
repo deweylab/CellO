@@ -20,7 +20,7 @@ CellO requires some resources to run out-of-the-box. These resources can be down
 
 ``bash download_resources.sh``
 
-This command will download and upack a ``resources`` directory that will be stored in the ``cello`` Python package.  Next, we set the PYTHON path to point to all packages in this repository:
+Next, we set the PYTHON path to point to all packages in this repository:
 
 ``export PYTHONPATH=$(pwd):$PYTHONPATH``
 
