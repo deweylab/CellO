@@ -81,7 +81,6 @@ def main():
         ad.X.shape[1]
     ))
 
-
     # Load or train model
     if options.model:
         model_f = options.model
@@ -109,6 +108,7 @@ def main():
         res=1.0
     )
 
+    # Convert to human-readable ontology terms
     if options.human_readable_terms:
         og = the_ontology.the_ontology()
         results_df.columns = [
@@ -119,8 +119,6 @@ def main():
             og.id_to_term[x].name
             for x in finalized_binary_results_df.columns
         ]
-        
-
 
     # Write output
     out_f = '{}.probability.tsv'.format(out_pref)

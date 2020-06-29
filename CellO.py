@@ -133,6 +133,11 @@ def predict(
             TPM: transcripts per million
             LOG1_TPM: log(TPM+1) 
 
+    mod: Model, default: None
+        A trained classification model. If None, use a 
+        pre-trained default model on all of the genes, or,
+        if 'train' is True, then train a new model.
+
     assay: String, must be one of {'3_PRIME', 'FULL_LENGTH'}
         Whether this matrix is 3-prime-end or full-length sequencing.
 
@@ -149,16 +154,7 @@ def predict(
     res: float, default: 1.0
         If cluster=True, then run Leiden with this value for the 
         resolution parameter
-
-    mod: Model, default: None
-        A trained classification model. If None, use a 
-        pre-trained default model on all of the genes, or,
-        if 'train' is True, then train a new model.
-
-    train: Boolean, default: False
-        If 'mode' is False, and 'train' is True, then a train
-        a new model on the input gene set.
-
+    
     Returns
     -------
     probabilities, binary_classificaitons : two Pandas DataFrame
