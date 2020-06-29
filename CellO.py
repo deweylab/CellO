@@ -1,6 +1,8 @@
-#######################################################
-#   Run CellO
-#######################################################
+"""
+The CellO API
+
+Authors: Matthew Bernstein <mbernstein@morgridge.org>
+"""
 
 from optparse import OptionParser
 from os.path import join
@@ -15,9 +17,9 @@ import numpy as np
 import json
 from collections import defaultdict
 
-from cello import the_ontology
-from cello import load_expression_matrix
-from cello import load_training_data
+from utils import the_ontology
+from utils import load_expression_matrix
+from utils import load_training_data
 from models import model
 from graph_lib.graph import DirectedAcyclicGraph
 
