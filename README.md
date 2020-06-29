@@ -50,7 +50,7 @@ Note that ``-o test`` specifies the output-prefix. That is, all output files wil
 
 ### Running CellO with a gene set that is incompatible with a pre-trained model
 
-If the genes in the input file do not match the genes on which the model was trained, CellO can be told to train a classifier with only those genes included in the given input dataset by using the ``-t`` flag.  The trained model will be saved to file named ``<output_prefix>.model.dill`` where ``<output_prefix>`` is the output-prefix argument provided via the ``-o`` option.  Training CellO usually takes under an hour. 
+If the genes in the input file do not match the genes on which the model was trained, CellO can be told to train a classifier with only those genes included in the given input dataset by using the ``-t`` flag.  The trained model will be saved to a file named ``<output_prefix>.model.dill`` where ``<output_prefix>`` is the output-prefix argument provided via the ``-o`` option.  Training CellO usually takes under an hour. 
 
 For example, to train a model and run CellO on the file ``example_input/LX653_tumor.tsv``, run the command:
 
