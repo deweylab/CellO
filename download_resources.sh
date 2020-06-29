@@ -1,5 +1,6 @@
-curl http://deweylab.biostat.wisc.edu/cell_type_classification/resources/clr.pickle > ./cellpredict/resources/clr.pickle
-curl http://deweylab.biostat.wisc.edu/cell_type_classification/resources/tpr.pickle > ./cellpredict/resources/tpr.pickle
-curl http://deweylab.biostat.wisc.edu/cell_type_classification/resources/ir.pickle > ./cellpredict/resources/ir.pickle
-curl http://deweylab.biostat.wisc.edu/cell_type_classification/resources/kallisto_reference.hg38_v27 > ./cellpredict/resources/kallisto_reference.hg38_v27
-curl http://deweylab.biostat.wisc.edu/cell_type_classification/CL.18-11-13.obo > './onto_lib/obo/CL.18-11-13.obo'
+#######################################################################################################
+# Download the pre-trained models and other data, such as gene-symbol mappings, for running CellO
+########################################################################################################
+
+curl http://deweylab.biostat.wisc.edu/cell_type_classification/resources.tar.gz > cello/resource.tar.gz
+tar -zxf cello/resources.tar.gz

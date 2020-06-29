@@ -15,10 +15,10 @@ import numpy as np
 import json
 from collections import defaultdict
 
-from . import the_ontology
-from . import load_expression_matrix
-from . import load_training_data
-from . import model
+from cello import the_ontology
+from cello import load_expression_matrix
+from cello import load_training_data
+from models import model
 from graph_lib.graph import DirectedAcyclicGraph
 
 resource_package = __name__
@@ -109,11 +109,11 @@ def train_model(ad, algo='IR'):
 def predict(
         ad,
         units,
+        mod,
         assay='3_PRIME',
         algo='IR',
         cluster=True,
-        res=1.0,
-        model_f=None
+        res=1.0
     ):
     """
     Classify cell types for a given expression matrix.
@@ -148,9 +148,14 @@ def predict(
         If cluster=True, then run Leiden with this value for the 
         resolution parameter
 
-    model_f: String, default: None
-        A dilled, trained classification model. If None, use a 
-        pre-trained default model on all of the genes.
+    mod: Model, default: None
+        A trained classification model. If None, use a 
+        pre-trained default model on all of the genes, or,
+        if 'train' is True, then train a new model.
+
+    train: Boolean, default: False
+        If 'mode' is False, and 'train' is True, then a train
+        a new model on the input gene set.
 
     Returns
     -------
@@ -160,6 +165,15 @@ def predict(
         the binarized (1 or 0) classifications across all cell types
         for each input cell.
     """
+
+    # Check that model is combatible with data
+    is_compatible = check_compatibility(ad, mod)
+    if not is_compatible:
+        print("Error. The genes present in data matrix do not match those expected by the classifier.")
+        print("Please train a classifier on this input gene set by either using the cello_train_model.py ")
+        print("program or by running cello_classify with the '-t' flag.")
+        exit()
+
 
     # Get units into log(TPM+1)
     if assay == FULL_LENGTH_ASSAY:
@@ -175,14 +189,15 @@ def predict(
     elif units in set([CPM_UNITS, TPM_UNITS]):
         sc.pp.log1p(ad)
 
+    # Compute raw classifier probabilities
     results_df, cell_to_clust = _raw_probabilities(
         ad,
         units,
+        mod,
         assay,
         algo=algo,
         cluster=True,
-        res=1.0,
-        model_f=model_f
+        res=1.0
     )
 
     # Binarize the output probabilities
@@ -228,45 +243,60 @@ def predict(
     return results_df, finalized_binary_results_df
 
 
+def _retrieve_pretrained_model(ad, algo):
+    print('Checking if any pre-trained model is compatible with this input dataset...')
+    pretrained_ir = [
+        'ir.dill',
+        'ir.10x.dill'
+    ]
+    pretrained_clr = [
+        'clr.dill',
+        'clr.10x.dill'
+    ]
+    mod = None
+    if algo == 'IR':
+        for model_fname in pretrained_ir:
+            model_f = pr.resource_filename(
+                resource_package,
+                join("resources", "trained_models", model_fname)
+            )
+            print(model_f)
+            with open(model_f, 'rb') as f:
+                mod = dill.load(f)  
+            feats = mod.classifier.features
+            if frozenset(feats) == frozenset(ad.var.index):
+                return mod              
+    elif algo == 'CLR':
+        for model_fname in pretrained_clr:
+            model_f = pr.resource_filename(
+                resource_package,
+                join("resources", "trained_models", model_fname)
+            )
+            with open(model_f, 'rb') as f:
+                mod = dill.load(f)
+            feats = mod.classifier.features
+            if frozenset(feats) == frozenset(ad.var.index):
+                return mod
+    print('Could not find compatible pre-trained model.')
+    return None
+
+def check_compatibility(ad, mod):
+    return frozenset(mod.classifier.features) <= frozenset(ad.var.index)
+
 def _raw_probabilities(
         ad, 
         units, 
+        mod,
         assay='3_PRIME', 
         algo='IR', 
         cluster=True, 
         res=1.0,
-        model_f=None
     ):
-    if model_f is None:
-        if algo == 'IR':
-            model_f = pr.resource_filename(
-                resource_package, 
-                join("resources", "trained_models", "ir.dill")
-            )
-        elif algo == 'CLR':
-            model_f = pr.resource_filename(
-                resource_package, 
-                join("resources", "trained_models", "clr.dill")
-            )
-    print('Loading model from {}...'.format(model_f))
-    with open(model_f, 'rb') as f:
-        mod = dill.load(f)
-    features = mod.classifier.features
-
-    # Make sure that the genes provided by the user match those expected 
-    # by the classifier
-    try:
-        assert frozenset(features) <= frozenset(ad.var.index)
-    except:
-        print(features[:20])
-        print("Error. The genes present in data matrix do not match those expected by the classifier.")
-        print("Please train a classifier on this input gene set using the cello_train_model.py program.")
-        exit()
+    assert check_compatibility(ad, mod)
 
     # Shuffle columns to be in accordance with model
+    features = mod.classifier.features
     ad = ad[:,features]
-
-    print(ad.shape)
 
     # Cluster
     if cluster: 
