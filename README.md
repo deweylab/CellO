@@ -40,7 +40,7 @@ CellO outputs two tables: a NxM classification probability table of N cells and 
 
 Notably, the input expression data's genes must match the genes expected by the trained classifier.  If the genes match, then CellO will use a pre-trained classifier to classify the expression profiles (i.e. cells) in the input dataset. 
 
-To provide an example, here is how you would run CellO on an example dataset stored in ``example_input/zheng_PBMC_10x``. This dataset is a set of 20k cells distributed by Chromium 10x.  To run CellO on this dataset, run this command:
+To provide an example, here is how you would run CellO on a toy dataset stored in ``example_input/Zheng_PBMC_10x``. This dataset is a set of 1,000 cells subsampled from the [Zheng et al. (2017)](https://www.nature.com/articles/ncomms14049) dataset.  To run CellO on this dataset, run this command:
 
 ``python cello_predict.py -d 10x -u COUNTS -s 3_PRIME example_input/Zheng_PBMC_10x -o output/test``
 
@@ -60,7 +60,7 @@ Along with the classification results, this command will output a file ``test.mo
 
 ### Running CellO with a custom model
 
-Training a model on a new gene set needs only to be done once (see previous section). For example, to run CellO on ``example_input/LX653_tumor.tsv`` using a specific model stored in a model file, run:
+Training a model on a new gene set needs only to be done once (see previous section). For example, to run CellO on ``example_input/LX653_tumor.tsv`` using a specific model stored in a file, run:
 
 ``python cell_predict.py -u COUNTS -s 3_PRIME -m test.model.dill -o test example_input/LX653_tumor.tsv``
 
