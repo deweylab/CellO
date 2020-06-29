@@ -4,6 +4,16 @@
 
 CellO (Cell Ontology-based classification) is a Python package for performing cell type classification of RNA-seq data. CellO makes hierarchical predictions against the [Cell Ontology](http://www.obofoundry.org/ontology/cl.html). These classifiers were trained on nearly all of the primary cell, bulk RNA-seq data in the [Sequence Read Archive](https://www.ncbi.nlm.nih.gov/sra). 
 
+## Dependencies
+
+The Python package dependencies are described in ``requirements.txt``. These dependencies can be installed within a Python virtual environment in one fell swoop with the following commands:
+
+``
+python -m venv cello_env
+source cello_env/bin/activate
+pip install -r requirements.txt 
+`` 
+
 ## Setup 
 
 CellO requires some resources to run out-of-the-box. These resources can be downloaded with the following command:
@@ -13,14 +23,6 @@ CellO requires some resources to run out-of-the-box. These resources can be down
 This command will download and upack a ``resources`` directory that will be stored in the ``cello`` Python package.  Next, we set the PYTHON path to point to all packages in this repository:
 
 ``export PYTHONPATH=$(pwd):$PYTHONPATH``
-
-The Python package dependencies are described in ``requirements.txt``. These dependencies can be installed within a Python virtual environment in one fell swoop with the following commands:
-
-``
-python -m venv cello_env
-source cello_env/bin/activate
-pip install -r requirements.txt 
-`` 
 
 ## Running CellO
 
