@@ -9,9 +9,9 @@ CellO (Cell Ontology-based classification) is a Python package for performing ce
 The Python package dependencies are described in ``requirements.txt``. These dependencies can be installed within a Python virtual environment in one fell swoop with the following commands:
 
 ``
-python -m venv cello_env
-source cello_env/bin/activate
-pip install -r requirements.txt 
+python -m venv cello_env 
+source cello_env/bin/activate 
+pip install -r requirements.txt  
 `` 
 
 ## Setup 
@@ -48,6 +48,7 @@ Note that ``-o test`` specifies the all output files will have the prefix "test"
 
 ``python cello_predict.py -h``
 
+
 ### Running CellO with a gene set that is incompatible with a pre-trained model
 
 If the genes in the input file do not match the genes on which the model was trained, CellO can be told to train a classifier with only those genes included in the given input dataset by using the ``-t`` flag.  The trained model will be saved to a file named ``<output_prefix>.model.dill`` where ``<output_prefix>`` is the output-prefix argument provided via the ``-o`` option.  Training CellO usually takes under an hour. 
@@ -74,4 +75,4 @@ This script requires a preprocessed kallisto reference.  To download the pre-bui
 
 ``bash download_kallisto_reference.sh``
 
-This command will download a directory called ``kallisto_refernce`` in the current directory.
+This command will download a directory called ``kallisto_reference`` in the current directory.
