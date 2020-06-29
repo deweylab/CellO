@@ -68,7 +68,7 @@ def main():
 
     # Load CellO after parsing arguments since CellO takes a while
     # to load the ontologies
-    from cello import load_expression_matrix
+    from utils import load_expression_matrix
     import CellO
 
     # Load data
