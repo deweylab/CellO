@@ -22,6 +22,7 @@ def main():
     parser.add_option("-s", "--assay", help="Sequencing assay. Must be one of: '3_PRIME', 'FULL_LENGTH'")
     parser.add_option("-t", "--train_model", action="store_true", help="If the genes in the input matrix don't match what is expected by the classifier, then train a classifier on the input genes. The model will be saved to <output_prefix>.model.dill")
     parser.add_option("-m", "--model", help="Path to pretrained model file.")
+    parser.add_option("-b", "--human_readable_terms", action="store_true", help="Use human-readable ontology term names in output rather than term ID's.")
     parser.add_option("-o", "--output_prefix", help="Prefix for all output files. This prefix may contain a path.")
     (options, args) = parser.parse_args()
 
@@ -69,6 +70,7 @@ def main():
     # Load CellO after parsing arguments since CellO takes a while
     # to load the ontologies
     from utils import load_expression_matrix
+    from utils import the_ontology
     import CellO
 
     # Load data
@@ -106,6 +108,19 @@ def main():
         cluster=True,
         res=1.0
     )
+
+    if options.human_readable_terms:
+        og = the_ontology.the_ontology()
+        results_df.columns = [
+            og.id_to_term[x].name
+            for x in results_df.columns
+        ]
+        finalized_binary_results_df.columns = [
+            og.id_to_term[x].name
+            for x in finalized_binary_results_df.columns
+        ]
+        
+
 
     # Write output
     out_f = '{}.probability.tsv'.format(out_pref)
