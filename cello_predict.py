@@ -75,7 +75,13 @@ def main():
 
     # Load data
     print('Loading data from {}...'.format(data_loc))
-    ad = load_expression_matrix.load_data(data_loc, data_type)
+    ad = load_expression_matrix.load_data(
+        data_loc, 
+        data_type,
+        hdf5_expr_key=options.h5_expression_key,
+        hdf5_cells_key=options.h5_cell_key,
+        hdf5_genes_key=options.h5_gene_key
+    )
     print("Loaded data matrix with {} cells and {} genes.".format(
         ad.X.shape[0],
         ad.X.shape[1]
