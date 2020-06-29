@@ -36,26 +36,31 @@ CellO uses a supervised machine learning classifier to classify the cell types w
 
 Notably, the input expression data's genes must match the genes expected by the trained classifier.  If the genes match, then CellO will use a pre-trained classifier to classify the expression profiles (i.e. cells) in the input dataset. 
 
-To provide an example, here is how you would run CellO on an example dataset stored in ``example_input/``. This dataset is a set of XXXXXX monocytes distributed by Chromium 10x.  To run CellO on this dataset, run this command:
+To provide an example, here is how you would run CellO on an example dataset stored in ``example_input/zheng_PBMC_10x``. This dataset is a set of 20k cells distributed by Chromium 10x.  To run CellO on this dataset, run this command:
 
-``python cello_predict.py``
+``python cello_predict.py -d 10x -u COUNTS -s 3_PRIME -o test example_input/zheng_PBMC_10x``
 
-### Training CellO with a new gene set
+Note that ``-o test`` specifies the output-prefix. That is, all output files will be prefixed by the string "test".  The ``-d`` specifies the input format, ``-u`` specifies the units of the expression matrix, and ``-s`` specifies the assay-type.  For a full list of available formats, units, assay-types, run:
 
-If the genes in the input file do not match the genes on which the model was trained, then CellO will output an error message:
+``python cello_predity.py -h``
 
+### Running CellO with a gene set that is incompatible with a pre-trained model
 
-To circumvent this issue, CellO can be told to train a classifier with only those genes included in the given input dataset.  
+If the genes in the input file do not match the genes on which the model was trained, CellO can be told to train a classifier with only those genes included in the given input dataset by using the ``-t`` flag.  The trained model will be saved to file named ``<output_prefix>.model.dill`` where ``<output_prefix>`` is the output-prefix argument provided via the ``-o`` option.  Training CellO usually takes under an hour. 
 
+For example, to train a model and run CellO on the file ``example_input/LX653_tumor.tsv``, run the command:
 
-Note that the ``-t`` flag tells CellO to train a fresh classifier on the genes contained in the input file.  The parameter ``--X XXXXXXX`` tells CellO to write the trained model to the file ``XXXXXXX``. Training CellO usually takes under an hour.
+``python cello_predict.py -u COUNTS -s 3_PRIME -t -o test example_input/LX653_tumor.tsv``
 
-To run CellO on a custom, pre-trained model, run CellO as follows:
+Along with the classification results, this command will output a file ``test.model.dill``.
 
-``python cell_predict.py -m ``
+### Running CellO with a custom model
 
-Note that ``-m XXXXXX`` tells CellO to use the model stored in ``XXXXXXXX``.
+Training a model on a new gene set needs only to be done once (see previous section). For example, to run CellO on ``example_input/LX653_tumor.tsv`` using a specific model stored in a model file, run:
 
+``python cell_predict.py -u COUNTS -s 3_PRIME -m test.model.dill -o test example_input/LX653_tumor.tsv``
+
+Note that ``-m test.model.dill`` tells CellO to use the model computed in the previous example.
 
 ## Quantifying reads with Kallisto to match CellO's pre-trained models
 
