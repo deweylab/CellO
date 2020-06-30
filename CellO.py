@@ -38,7 +38,8 @@ THREE_PRIMED_ASSAY = '3_PRIME'
 
 UNITS = 'log_tpm'
 ALGO_TO_INTERNAL = {
-    'IR': 'isotonic_regression'
+    'IR': 'isotonic_regression',
+    'CLR': 'cdc'
 }
 ALGO_TO_PARAMS = {
     'IR': {
@@ -46,7 +47,18 @@ ALGO_TO_PARAMS = {
         "binary_classifier_algorithm": "logistic_regression",
         "binary_classifier_params": {
             "penalty": "l2",
-            "penalty_weight": 1.0,
+            "penalty_weight": 0.0006,
+            "solver": "liblinear",
+            "intercept_scaling": 1000.0,
+            "downweight_by_class": True
+        }
+    },
+    'CLR': {
+        "assert_ambig_neg": False,
+        "binary_classifier_algorithm": "logistic_regression",
+        "binary_classifier_params": {
+            "penalty": "l2",
+            "penalty_weight": 0.001,
             "solver": "liblinear",
             "intercept_scaling": 1000.0,
             "downweight_by_class": True
