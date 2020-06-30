@@ -29,12 +29,14 @@ Next, we set the PYTHON path to point to all packages in this repository:
 ### Overview
 
 CellO uses a supervised machine learning classifier to classify the cell types within a dataset. CellO takes as input a gene expression matrix. CellO accepts data in multiple formats:
-* TSV
-* CSV
-* HDF5
-* 10x formatted directory 
+* TSV: tab-separated value 
+* CSV: comma-separated value
+* HDF5: a database in HDF5 format that includes three datasets: a dataset storing the expression matrix, a dataset storing the list of gene-names (i.e. rows), and a gene-set storing the list of cell ID's (i.e. columns)
+* 10x formatted directory: a directory in the 10x format including three files: ``matrix.mtx``, ``genes.tsv``, and ``barcodes.tsv``
 
-CellO outputs two tables: a NxM classification probability table of N cells and M cell types where element (i,j) is a probability value that describes CellO's confidence that cell i is of cell type j.  CellO also outputs a binary-decision matrix where element (i,j) is 1 if CellO predicts cell i to be of cell j and is 0 otherwise.
+Given an output-prefix provided to CellO (this can include the path to the output), CellO outputs two tables formatted as tab-separated-value files: 
+* ``<output_prefix>.probability.tsv``: a NxM classification probability table of N cells and M cell types where element (i,j) is a probability value that describes CellO's confidence that cell i is of cell type j  
+* ``<output_prefix>.binary.tsv``: a NxM binary-decision matrix where element (i,j) is 1 if CellO predicts cell i to be of cell j and is 0 otherwise.
 
 ### Running CellO with a pre-trained model
 
