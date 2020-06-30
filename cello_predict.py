@@ -43,6 +43,7 @@ def main():
             assert options.h5_gene_key is not None
             assert options.h5_expression_key is not None
         except:
+            print()
             print("Error. The specified input data is HDF5.  The dataset keys within the HDF5 must be provided via the '-c', '-g', and '-e' arguments.  Please run 'python cello_predict.py -h' for more details.")
             exit()
 
@@ -103,6 +104,12 @@ def main():
                 print('Writing trained model to {}'.format(out_model_f))
                 with open(out_model_f, 'wb') as f:
                     dill.dump(model, f)
+
+    if model is None:
+        print()
+        print("Error. The genes present in data matrix do not match those expected by any of the pre-trained classifiers.")
+        print("Please train a classifier on this input gene set by either using the cello_train_model.py program or by running cello_classify with the '-t' flag.")
+        exit()        
 
     results_df, finalized_binary_results_df = CellO.predict(
         ad,

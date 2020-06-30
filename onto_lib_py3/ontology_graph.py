@@ -313,6 +313,7 @@ def parse_obos(ont_to_loc, restrict_to_idspaces=None, include_obsolete=False):
     name_to_ids = {}
 
     # Iterate through OBO files and build up the ontology
+    print("Loading ontology...")
     for ont, loc in ont_to_loc.items():
         i_to_t, n_to_is = parse_obo(loc,
             restrict_to_idspaces=restrict_to_idspaces,
@@ -378,7 +379,7 @@ def parse_obo(obo_file, restrict_to_idspaces=None, include_obsolete=False):
 
 
     header_info = {}
-    print("Loading ontology from %s ..." % obo_file)
+    #print("Loading ontology from %s ..." % obo_file)
     name_to_ids = {}
     id_to_term = {}
     with io.open(obo_file, "r", encoding="utf-8") as f:
