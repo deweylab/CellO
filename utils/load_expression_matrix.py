@@ -12,7 +12,7 @@ import numpy as np
 def load_data(
         data_loc, 
         data_type, 
-        rows_cells=True,
+        rows_cells=False,
         hdf5_expr_key=None,
         hdf5_cells_key=None,
         hdf5_genes_key=None
@@ -76,7 +76,7 @@ def _read_10x(data_loc):
     )
     return ad
 
-def _read_csv(data_loc, sep, rows_cells):
+def _read_csv(data_loc, sep, rows_cells=None):
     df = pd.read_csv(
         data_loc,
         sep=sep,
