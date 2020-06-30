@@ -9,7 +9,7 @@ CellO (Cell Ontology-based classification) is a Python package for performing ce
 The Python package dependencies are described in ``requirements.txt``. These dependencies can be installed within a Python virtual environment in one fell swoop with the following commands:
 
 ```
-python -m venv cello_env 
+python3 -m venv cello_env 
 source cello_env/bin/activate
 pip install -r requirements.txt  
 ``` 
@@ -75,4 +75,12 @@ This script requires a preprocessed kallisto reference.  To download the pre-bui
 
 ``bash download_kallisto_reference.sh``
 
-This command will download a directory called ``kallisto_reference`` in the current directory.
+This command will download a directory called ``kallisto_reference`` in the current directory. To run Kallisto on a set of FASTQ files, run the command
+
+``python run_kallisto.py <comma_dilimited_fastq_files> <tmp_dir> -o <kallisto_output_file>``
+
+where ``<comma_dilimited_fastq_files>`` is a comma-delimited set of FASTQ files containing all of the reads for a single RNA-seq sample and ``<tmp_dir>`` is the location where Kallisto will store it's output files.  The file ``<kallisto_output_file>`` is a tab-separated-value table of the log(TPM+1) values that can be fed directly to CellO.  To run CellO on this output file, run:
+
+``python cell_predict.py -u LOG1_TPM -s FULL_LENGTH <kallisto_output_file> -o <cell_output_prefix>``
+
+Note that the above command assumes that the assay is a full-length assay (meaning reads can originate from the full-length of the transcript).  If this is a 3-prime assay (reads originate from only the 3'-end of the transcript), the ``-s FULL_LENGTH`` should be replaced with ``-s 3_PRIME`` in the above command.
