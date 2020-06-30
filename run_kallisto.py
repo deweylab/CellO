@@ -27,10 +27,14 @@ KALLISTO_REF = pr.resource_filename(
     resource_package, join("kallisto_resources", "kallisto_reference.hg38_v27"))
 
 def main():
-    usage = "" # TODO 
+    usage = """
+    %prog [options] fastq_files tmp_dir
+    
+    fastq_files: a comma-delimited list of filepaths to the input FASTQ files
+    tmp_dir: path to directory to write intermediate files output by Kallisto
+    """ 
     parser = OptionParser(usage=usage)
-    parser.add_option("-p", "--is_paired", 
-        action="store_true", help="Paired-end reads")
+    parser.add_option("-p", "--is_paired", action="store_true", help="Paired-end reads")
     parser.add_option("-o", "--out", help="Output file")
     (options, args) = parser.parse_args()
 
@@ -66,11 +70,12 @@ def main():
         for gene in gene_order
     ])
     log1_tpm_vec = np.log(tpm_vec+1)
-    
+   
     df = pd.DataFrame(
-        data=[log1_tpm_vec],
+        data=log1_tpm_vec,
         index=gene_order
     )
+    print(df)
     df.to_csv(out_f, sep='\t')
     
 

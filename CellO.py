@@ -297,7 +297,7 @@ def _raw_probabilities(
     ad = ad[:,features]
 
     # Cluster
-    if cluster: 
+    if cluster and ad.X.shape[0] > 50: 
         cell_to_clust, ad_clust = _cluster(ad, res, units)
         conf_df, score_df = mod.predict(ad_clust.X, ad_clust.obs.index)
     else:
