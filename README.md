@@ -20,7 +20,7 @@ CellO requires some resources to run out-of-the-box. These resources can be down
 
 ``bash download_resources.sh``
 
-Next, we set the PYTHON path to point to all packages in this repository:
+Next, we set the PYTHONPATH to point to all packages in this repository:
 
 ``export PYTHONPATH=$(pwd):$PYTHONPATH``
 
