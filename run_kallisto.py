@@ -20,11 +20,11 @@ FRAGMENT_STDEV = 30
 
 resource_package = __name__
 GENE_TRANSCRIPT_MAPPING_F = pr.resource_filename(
-    resource_package, join("kallisto_resources", "gene_transcript.hg38_p10.tsv")) 
+    resource_package, join("kallisto_reference", "gene_transcript.hg38_p10.tsv")) 
 GENE_ORDER = pr.resource_filename(
-    resource_package, join("kallisto_resources", "gene_order.json"))
+    resource_package, join("kallisto_reference", "gene_order.json"))
 KALLISTO_REF = pr.resource_filename(
-    resource_package, join("kallisto_resources", "kallisto_reference.hg38_v27"))
+    resource_package, join("kallisto_reference", "kallisto_reference.hg38_v27"))
 
 def main():
     usage = """
