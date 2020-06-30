@@ -36,7 +36,7 @@ CellO uses a supervised machine learning classifier to classify the cell types w
 
 Given an output-prefix provided to CellO (this can include the path to the output), CellO outputs two tables formatted as tab-separated-value files: 
 * ``<output_prefix>.probability.tsv``: a NxM classification probability table of N cells and M cell types where element (i,j) is a probability value that describes CellO's confidence that cell i is of cell type j  
-* ``<output_prefix>.binary.tsv``: a NxM binary-decision matrix where element (i,j) is 1 if CellO predicts cell i to be of cell j and is 0 otherwise.
+* ``<output_prefix>.binary.tsv``: a NxM binary-decision matrix where element (i,j) is 1 if CellO predicts cell i to be of cell type j and is 0 otherwise.
 
 ### Running CellO with a pre-trained model
 
