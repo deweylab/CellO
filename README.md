@@ -81,7 +81,7 @@ This command will download a directory called ``kallisto_reference`` in the curr
 
 ``python run_kallisto.py <comma_dilimited_fastq_files> <tmp_dir> -o <kallisto_output_file>``
 
-where ``<comma_dilimited_fastq_files>`` is a comma-delimited set of FASTQ files containing all of the reads for a single RNA-seq sample and ``<tmp_dir>`` is the location where Kallisto will store it's output files.  The file ``<kallisto_output_file>`` is a tab-separated-value table of the log(TPM+1) values that can be fed directly to CellO.  To run CellO on this output file, run:
+where ``<comma_delimited_fastq_files>`` is a comma-delimited set of FASTQ files containing all of the reads for a single RNA-seq sample and ``<tmp_dir>`` is the location where Kallisto will store it's output files.  The file ``<kallisto_output_file>`` is a tab-separated-value table of the log(TPM+1) values that can be fed directly to CellO.  To run CellO on this output file, run:
 
 ``python cell_predict.py -u LOG1_TPM -s FULL_LENGTH <kallisto_output_file> -o <cell_output_prefix>``
 
