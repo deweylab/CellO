@@ -65,7 +65,7 @@ Along with the classification results, this command will output a file ``test.mo
 
 Training a model on a new gene set needs only to be done once (see previous section). For example, to run CellO on ``example_input/LX653_tumor.tsv`` using a specific model stored in a file, run:
 
-``python cell_predict.py -u COUNTS -s 3_PRIME -m test.model.dill -o test example_input/LX653_tumor.tsv``
+``python cello_predict.py -u COUNTS -s 3_PRIME -m test.model.dill -o test example_input/LX653_tumor.tsv``
 
 Note that ``-m test.model.dill`` tells CellO to use the model computed in the previous example.
 
