@@ -12,7 +12,7 @@ from graph_lib.graph import DirectedAcyclicGraph
 
 DATA_DIR = pr.resource_filename(
     resource_package,
-    join("resources", "training_set")
+    join("..", "resources", "training_set")
 ) 
 
 def load(features):
