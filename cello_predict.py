@@ -22,7 +22,7 @@ def main():
     parser.add_option("-s", "--assay", help="Sequencing assay. Must be one of: '3_PRIME', 'FULL_LENGTH'")
     parser.add_option("-t", "--train_model", action="store_true", help="If the genes in the input matrix don't match what is expected by the classifier, then train a classifier on the input genes. The model will be saved to <output_prefix>.model.dill")
     parser.add_option("-m", "--model", help="Path to pretrained model file.")
-    parser.add_option("-b", "--human_readable_terms", action="store_true", help="Use human-readable ontology term names in output rather than term ID's.")
+    parser.add_option("-b", "--ontology_term_ids", action="store_true", help="Use the less readable, but more rigorous Cell Ontology term id's in output")
     parser.add_option("-o", "--output_prefix", help="Prefix for all output files. This prefix may contain a path.")
     (options, args) = parser.parse_args()
 
@@ -122,7 +122,7 @@ def main():
     )
 
     # Convert to human-readable ontology terms
-    if options.human_readable_terms:
+    if not options.ontology_term_ids:
         og = the_ontology.the_ontology()
         results_df.columns = [
             og.id_to_term[x].name
