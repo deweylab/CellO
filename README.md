@@ -2,7 +2,7 @@
 
 ## About
 
-CellO (Cell Ontology-based classification) is a Python package for performing cell type classification of RNA-seq data. CellO makes hierarchical predictions against the [Cell Ontology](http://www.obofoundry.org/ontology/cl.html). These classifiers were trained on nearly all of the primary cell, bulk RNA-seq data in the [Sequence Read Archive](https://www.ncbi.nlm.nih.gov/sra). 
+CellO (Cell Ontology-based classification) is a Python package for performing cell type classification of human RNA-seq data. CellO makes hierarchical predictions against the [Cell Ontology](http://www.obofoundry.org/ontology/cl.html). These classifiers were trained on nearly all of the human primary cell, bulk RNA-seq data in the [Sequence Read Archive](https://www.ncbi.nlm.nih.gov/sra). 
 
 ## Dependencies
 
@@ -86,3 +86,28 @@ where ``<comma_delimited_fastq_files>`` is a comma-delimited set of FASTQ files 
 ``python cell_predict.py -u LOG1_TPM -s FULL_LENGTH <kallisto_output_file> -o <cell_output_prefix>``
 
 Note that the above command assumes that the assay is a full-length assay (meaning reads can originate from the full-length of the transcript).  If this is a 3-prime assay (reads originate from only the 3'-end of the transcript), the ``-s FULL_LENGTH`` should be replaced with ``-s 3_PRIME`` in the above command.
+
+## Trouble-shooting
+
+If upon running the command, `pip install -r requirements.txt`, and you receive an error installing Cython, that looks like:
+
+```
+ERROR: Command errored out with exit status 1:
+     command: /scratch/cdewey/test_cello/CellO-master/cello_env/bin/python3 -c 'import sys, setuptools, tokenize; sys.argv[0] = '"'"'/tmp/pip-install-wo2dj5q7/quadprog/setup.py'"'"'; __file__='"'"'/tmp/pip-install-wo2dj5q7/quadprog/setup.py'"'"';f=getattr(tokenize, '"'"'open'"'"', open)(__file__);code=f.read().replace('"'"'\r\n'"'"', '"'"'\n'"'"');f.close();exec(compile(code, __file__, '"'"'exec'"'"'))' egg_info --egg-base pip-egg-info
+         cwd: /tmp/pip-install-wo2dj5q7/quadprog/
+    Complete output (5 lines):
+    Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+      File "/tmp/pip-install-wo2dj5q7/quadprog/setup.py", line 17, in <module>
+        from Cython.Build import cythonize
+    ModuleNotFoundError: No module named 'Cython'
+    ----------------------------------------
+ERROR: Command errored out with exit status 1: python setup.py egg_info Check the logs for full command output.
+```
+
+then you may try upgrading to the latest version of pip and Cython by running:
+
+```
+python -m pip install --upgrade pip
+pip install --upgrade cython
+```
