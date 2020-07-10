@@ -256,11 +256,6 @@ def _compute_training_sets_remove_ambiguous(
             if desc_label in label_to_items:
                 positive_items.update(label_to_items[desc_label])
         label_to_pos_items[curr_label] = list(positive_items)
-        print("Label {}, positive items ({}): {}".format(
-            curr_label, 
-            len(label_to_pos_items[curr_label]), 
-            label_to_pos_items[curr_label]
-        ))
 
     # Compute the negative items for each label
     # This set consists of all items that are labelled with the
@@ -286,11 +281,5 @@ def _compute_training_sets_remove_ambiguous(
         negative_items -= ambig_items
 
         label_to_neg_items[curr_label] = list(negative_items)
-        print("Label {}, negative items ({}): {}".format(
-            curr_label, 
-            len(label_to_neg_items[curr_label]), 
-            label_to_neg_items[curr_label]
-        ))
-        print("Ambiguous items ({}): {}".format(len(ambig_items), ambig_items))
     return label_to_pos_items, label_to_neg_items
 
