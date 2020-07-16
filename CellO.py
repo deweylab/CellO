@@ -98,7 +98,7 @@ def train_model(ad, algo='IR'):
 
     # Match genes in test data to those in training
     # data
-    train_genes, gene_indices = _match_genes(genes, all_genes)
+    train_genes, train_ids, gene_indices = _match_genes(genes, all_genes)
 
     # Take a subset of the columns for the training-genes 
     X_train = X[:,gene_indices]
@@ -268,7 +268,7 @@ def _retrieve_pretrained_model(ad, algo):
     print('Checking if any pre-trained model is compatible with this input dataset...')
     pretrained_ir = [
         'ir.dill',
-        'ir.10x.dill'
+        'ir.10x.dill',
     ]
     pretrained_clr = [
         'clr.dill',
@@ -286,7 +286,7 @@ def _retrieve_pretrained_model(ad, algo):
                 mod = dill.load(f)  
             feats = mod.classifier.features
             if frozenset(feats) == frozenset(ad.var.index):
-                return mod              
+                return mod
     elif algo == 'CLR':
         for model_fname in pretrained_clr:
             model_f = pr.resource_filename(
@@ -348,14 +348,13 @@ def _cluster(ad, res, units):
             clust
         ))
         X_clust = ad_clust[cells,:].X
-        if units == COUNTS_UNITS:
-            X_clust = np.exp(X_clust)-1
-            x_clust = np.sum(X_clust, axis=0)
-            sum_x_clust = float(sum(x_clust))
-            x_clust = np.array([x/sum_x_clust for x in x_clust])
-            x_clust *= 1e6
-            x_clust = np.log(x_clust+1)
-            X_mean_clust.append(x_clust)    
+        X_clust = np.exp(X_clust)-1
+        x_clust = np.sum(X_clust, axis=0)
+        sum_x_clust = float(sum(x_clust))
+        x_clust = np.array([x/sum_x_clust for x in x_clust])
+        x_clust *= 1e6
+        x_clust = np.log(x_clust+1)
+        X_mean_clust.append(x_clust)    
         clusters.append(clust)
     X_mean_clust = np.array(X_mean_clust)
     ad_mean_clust = AnnData(
@@ -370,18 +369,72 @@ def _cluster(ad, res, units):
 
 
 def _retrieve_empirical_thresholds(ad, algo):
-    # TODO Decided on whether to load the 10x thresholds or all genes thresholds
+    print('Checking if any pre-trained model is compatible with this input dataset...')
+    pretrained_ir = [
+        ('ir.dill', 'ir.all_genes_thresholds.tsv'), 
+        ('ir.10x.dill', 'ir.10x_genes_thresholds.tsv') 
+    ]
+    pretrained_clr = [
+        ('clr.dill', 'clr.all_genes_thresholds.tsv'),
+        ('clr.10x.dill', 'clr.10x_genes_thresholds.tsv')
+    ]
+    mod = None
+    max_genes_common = 0
+    best_thresh_f = None
     if algo == 'IR':
-        thresh_f = pr.resource_filename(
-            resource_package,
-            join("resources", "trained_models", "ir.all_genes_thresholds.tsv")
-        )
+        for model_fname, thresh_fname in pretrained_ir:
+            model_f = pr.resource_filename(
+                resource_package,
+                join("resources", "trained_models", model_fname)
+            )
+            with open(model_f, 'rb') as f:
+                mod = dill.load(f)  
+            feats = mod.classifier.features
+            # Compute the fraction of model-features that are in the input dataset
+            matched_genes = _match_genes(ad.var.index, feats, verbose=False)[1]
+            common = len(frozenset(feats) & frozenset(matched_genes)) / len(feats)
+            if common >= max_genes_common:
+                max_genes_common = common
+                best_thresh_f = pr.resource_filename(
+                    resource_package,
+                    join("resources", "trained_models", thresh_fname)
+                )
     elif algo == 'CLR':
-        thresh_f = pr.resource_filename(
-            resource_package,
-            join("resources", "trained_models", "clr.all_genes_thresholds.tsv")
-        ) 
-    return pd.read_csv(thresh_f, sep='\t', index_col=0)
+        for model_fname, thresh_fname in pretrained_clr:
+            model_f = pr.resource_filename(
+                resource_package,
+                join("resources", "trained_models", model_fname)
+            )
+            with open(model_f, 'rb') as f:
+                mod = dill.load(f)
+            feats = mod.classifier.features
+            matched_genes = _match_genes(ad.var.index, feats, verbose=False)[1]
+            common = len(frozenset(feats) & frozenset(matched_genes)) / len(feats)
+            if common >= max_genes_common:
+                max_genes_common = common
+                best_thresh_f = pr.resource_filename(
+                    resource_package,
+                    join("resources", "trained_models", thresh_fname)
+                )
+    print('Using thresholds stored in {}'.format(best_thresh_f))
+    thresh_df = pd.read_csv(best_thresh_f, sep='\t', index_col=0)
+    return thresh_df
+
+
+
+    # TODO Decided on whether to load the 10x thresholds or all genes thresholds
+    #if algo == 'IR':
+    #    thresh_f = pr.resource_filename(
+    #        resource_package,
+    #        join("resources", "trained_models", "ir.all_genes_thresholds.tsv")
+    #    )
+    #elif algo == 'CLR':
+    #    thresh_f = pr.resource_filename(
+    #        resource_package,
+    #        join("resources", "trained_models", "clr.all_genes_thresholds.tsv")
+    #    ) 
+    #return pd.read_csv(thresh_f, sep='\t', index_col=0)
+
 
 
 def _retrieve_label_graph():
@@ -564,21 +617,24 @@ def _select_one_most_specific(
     )
     return df, df_ms
 
-def _match_genes(test_genes, all_genes):
+def _match_genes(test_genes, all_genes, verbose=True):
     # Map each gene to its index
     gene_to_index = {
         gene: index
         for index, gene in enumerate(all_genes)
     }
     if 'ENSG' in test_genes[0]:
-        print("Inferred that input file uses Ensembl gene Id's.")
+        if verbose:
+            print("Inferred that input file uses Ensembl gene Id's.")
         train_genes = sorted(set(test_genes) & set(all_genes))
+        train_ids = train_genes
         gene_indices = [
             gene_to_index[gene]
             for gene in train_genes
         ]
     elif len(set(['CD14', 'SOX2', 'NANOG', 'PECAM1']) & set(test_genes)) > 0:
-        print("Inferred that input file uses HGNC gene symbols.")
+        if verbose:
+            print("Inferred that input file uses HGNC gene symbols.")
         genes_f = pr.resource_filename(
             resource_package,
             join("resources", "gene_metadata", "biomart_id_to_symbol.tsv")
@@ -608,13 +664,14 @@ def _match_genes(test_genes, all_genes):
             gene_to_index[gene]
             for gene in train_ids
         ]
-    print('Of {} genes in test set, found {} of {} training set genes in input file.'.format(
-        len(test_genes),
-        len(train_ids),
-        len(all_genes)
-    ))
-    print('Did not find genes: {}'.format(not_found))
-    return train_genes, gene_indices
+    if verbose:
+        print('Of {} genes in test set, found {} of {} training set genes in input file.'.format(
+            len(test_genes),
+            len(train_ids),
+            len(all_genes)
+        ))
+        print('Did not find genes: {}'.format(not_found))
+    return train_genes, train_ids, gene_indices
 
 
 if __name__ == "__main__":
