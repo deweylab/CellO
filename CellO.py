@@ -233,7 +233,7 @@ def predict(
     if cell_to_clust is not None:
         results_da = [
             results_df.loc[cell_to_clust[cell]]
-            for cell in sorted(ad.obs.index)
+            for cell in ad.obs.index
         ]
         results_df = pd.DataFrame(
             data=results_da,
@@ -243,7 +243,7 @@ def predict(
 
         finalized_binary_results_da = [
             finalized_binary_results_df.loc[cell_to_clust[cell]]
-            for cell in sorted(ad.obs.index)
+            for cell in ad.obs.index
         ]
         finalized_binary_results_df = pd.DataFrame(
             data=finalized_binary_results_da,
@@ -275,6 +275,7 @@ def _retrieve_pretrained_model(ad, algo):
         'clr.10x.dill'
     ]
     mod = None
+    assert algo in ALGO_TO_INTERNAL.keys() 
     if algo == 'IR':
         for model_fname in pretrained_ir:
             model_f = pr.resource_filename(
@@ -326,6 +327,7 @@ def _raw_probabilities(
     else:
         cell_to_clust = None
         conf_df, score_df = mod.predict(ad.X, ad.obs.index)
+    conf_df.to_csv('HUH.tsv', sep='\t') # TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     return conf_df, cell_to_clust
  
 
