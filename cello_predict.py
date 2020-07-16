@@ -111,7 +111,7 @@ def main():
         print("Please train a classifier on this input gene set by either using the cello_train_model.py program or by running cello_classify with the '-t' flag.")
         exit()        
 
-    results_df, finalized_binary_results_df = CellO.predict(
+    results_df, finalized_binary_results_df, ms_results_df = CellO.predict(
         ad,
         CellO.COUNTS_UNITS,
         model,
@@ -132,6 +132,10 @@ def main():
             og.id_to_term[x].name
             for x in finalized_binary_results_df.columns
         ]
+        ms_results_df['most_specific_cell_type'] = [
+            og.id_to_term[x].name
+            for x in ms_results_df['most_specific_cell_type']
+        ]
 
     # Write output
     out_f = '{}.probability.tsv'.format(out_pref)
@@ -141,6 +145,10 @@ def main():
     out_f = '{}.binary.tsv'.format(out_pref)
     print("Writing binarized classifications to {}...".format(out_f))
     finalized_binary_results_df.to_csv(out_f, sep='\t')
+
+    out_f = '{}.most_specific.tsv'.format(out_pref)
+    print("Writing most-specific cell types to {}...".format(out_f))
+    ms_results_df.to_csv(out_f, sep='\t')
 
 if __name__ == '__main__':
     main()

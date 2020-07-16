@@ -34,9 +34,10 @@ CellO uses a supervised machine learning classifier to classify the cell types w
 * HDF5: a database in HDF5 format that includes three datasets: a dataset storing the expression matrix, a dataset storing the list of gene-names (i.e. rows), and a gene-set storing the list of cell ID's (i.e. columns)
 * 10x formatted directory: a directory in the 10x format including three files: ``matrix.mtx``, ``genes.tsv``, and ``barcodes.tsv``
 
-Given an output-prefix provided to CellO (this can include the path to the output), CellO outputs two tables formatted as tab-separated-value files: 
+Given an output-prefix provided to CellO (this can include the path to the output), CellO outputs three tables formatted as tab-separated-value files: 
 * ``<output_prefix>.probability.tsv``: a NxM classification probability table of N cells and M cell types where element (i,j) is a probability value that describes CellO's confidence that cell i is of cell type j  
 * ``<output_prefix>.binary.tsv``: a NxM binary-decision matrix where element (i,j) is 1 if CellO predicts cell i to be of cell type j and is 0 otherwise.
+* ``<output_prefix>.most_specific.tsv``: a table mapping each cell to the most-specific predicted cell 
 
 ### Running CellO with a pre-trained model
 

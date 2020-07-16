@@ -221,7 +221,7 @@ def predict(
 
     # Select one most-specific cell type if there are 
     # more than one
-    finalized_binary_results_df = _select_one_most_specific(
+    finalized_binary_results_df, ms_results_df = _select_one_most_specific(
         binary_results_df,
         results_df,
         threshold_df,
@@ -233,7 +233,7 @@ def predict(
     if cell_to_clust is not None:
         results_da = [
             results_df.loc[cell_to_clust[cell]]
-            for cell in sorted(cell_to_clust.keys())
+            for cell in sorted(ad.obs.index)
         ]
         results_df = pd.DataFrame(
             data=results_da,
@@ -243,14 +243,25 @@ def predict(
 
         finalized_binary_results_da = [
             finalized_binary_results_df.loc[cell_to_clust[cell]]
-            for cell in sorted(cell_to_clust.keys())
+            for cell in sorted(ad.obs.index)
         ]
         finalized_binary_results_df = pd.DataFrame(
             data=finalized_binary_results_da,
             index=ad.obs.index,
             columns=finalized_binary_results_df.columns
         )
-    return results_df, finalized_binary_results_df
+
+        ms_results_da = [
+            ms_results_df.loc[cell_to_clust[cell]]
+            for cell in ad.obs.index
+        ]
+        ms_results_df = pd.DataFrame(
+            data=ms_results_da,
+            index=ad.obs.index,
+            columns=ms_results_df.columns
+        )
+
+    return results_df, finalized_binary_results_df, ms_results_df
 
 
 def _retrieve_pretrained_model(ad, algo):
@@ -338,6 +349,7 @@ def _cluster(ad, res, units):
         ))
         X_clust = ad_clust[cells,:].X
         if units == COUNTS_UNITS:
+            X_clust = np.exp(X_clust)-1
             x_clust = np.sum(X_clust, axis=0)
             sum_x_clust = float(sum(x_clust))
             x_clust = np.array([x/sum_x_clust for x in x_clust])
@@ -353,7 +365,7 @@ def _cluster(ad, res, units):
             data=clusters,
             index=clusters
         )
-    ) 
+    )
     return cell_to_clust, ad_mean_clust
 
 
@@ -516,14 +528,14 @@ def _select_one_most_specific(
         ))
         all_labels = label_to_ancestors[select_label] 
         exp_to_update_pred[exp] = all_labels
-    
+
     # Add qualifier cell types
     for exp in exp_to_update_pred:
         for qual_label in QUALIFIER_TERMS:
             if qual_label in exp_to_pred_labels[exp]:
                 all_labels = label_to_ancestors[qual_label]
                 exp_to_update_pred[exp].update(all_labels)
- 
+
     # Create dataframe with filtered results
     da = []
     for exp in binary_results_df.index:
@@ -540,7 +552,17 @@ def _select_one_most_specific(
         columns=binary_results_df.columns,
         index=binary_results_df.index
     )
-    return df
+
+    # Most specific cell type labels
+    df_ms = pd.DataFrame(
+        data=[
+            exp_to_select_pred_label[exp]
+            for exp in binary_results_df.index
+        ],
+        index = binary_results_df.index,
+        columns=['most_specific_cell_type']
+    )
+    return df, df_ms
 
 def _match_genes(test_genes, all_genes):
     # Map each gene to its index
