@@ -39,6 +39,56 @@ Given an output-prefix provided to CellO (this can include the path to the outpu
 * ``<output_prefix>.binary.tsv``: a NxM binary-decision matrix where element (i,j) is 1 if CellO predicts cell i to be of cell type j and is 0 otherwise.
 * ``<output_prefix>.most_specific.tsv``: a table mapping each cell to the most-specific predicted cell 
 
+Usage:
+
+```
+python cello_predict.py [options] input_file
+
+Options:
+  -h, --help            show this help message and exit
+  -a ALGO, --algo=ALGO  Hierarchical classification algorithm to apply
+                        (default='IR'). Must be one of: 'IR' - Isotonic
+                        regression, 'CLR' - cascaded logistic regression
+  -d DATA_TYPE, --data_type=DATA_TYPE
+                        Data type (required). Must be one of: 'TSV', 'CSV',
+                        '10x', or 'HDF5'. Note: if 'HDF5' is used, then
+                        arguments must be provided to the h5_cell_key,
+                        h5_gene_key, and h5_expression_key parameters.
+  -c H5_CELL_KEY, --h5_cell_key=H5_CELL_KEY
+                        The key of the dataset within the input HDF5 file
+                        specifying which dataset stores the cell ID's.  This
+                        argument is only applicable if '-d HDF5' is used
+  -g H5_GENE_KEY, --h5_gene_key=H5_GENE_KEY
+                        The key of the dataset within the input HDF5 file
+                        specifying which dataset stores the gene names/ID's.
+                        This argument is only applicable if '-d HDF5' is used
+  -e H5_EXPRESSION_KEY, --h5_expression_key=H5_EXPRESSION_KEY
+                        The key of the dataset within the input HDF5 file
+                        specifying which dataset stores the expression matrix.
+                        This argument is only applicable if '-d HDF5' is used
+  -r, --rows_cells      Use this flag if expression matrix is organized as
+                        CELLS x GENES rather than GENES x CELLS. Not
+                        applicable when '-d 10x' is used.
+  -u UNITS, --units=UNITS
+                        Units of expression. Must be one of: 'COUNTS', 'CPM',
+                        'LOG1_CPM', 'TPM', 'LOG1_TPM'
+  -s ASSAY, --assay=ASSAY
+                        Sequencing assay. Must be one of: '3_PRIME',
+                        'FULL_LENGTH'
+  -t, --train_model     If the genes in the input matrix don't match what is
+                        expected by the classifier, then train a classifier on
+                        the input genes. The model will be saved to
+                        <output_prefix>.model.dill
+  -m MODEL, --model=MODEL
+                        Path to pretrained model file.
+  -b, --ontology_term_ids
+                        Use the less readable, but more rigorous Cell Ontology
+                        term id's in output
+  -o OUTPUT_PREFIX, --output_prefix=OUTPUT_PREFIX
+                        Prefix for all output files. This prefix may contain a
+                        path.
+```
+
 ### Running CellO with a pre-trained model
 
 Notably, the input expression data's genes must match the genes expected by the trained classifier.  If the genes match, then CellO will use a pre-trained classifier to classify the expression profiles (i.e. cells) in the input dataset. 

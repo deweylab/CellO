@@ -1,7 +1,9 @@
-#########################################################################
-#   Runs Kallisto in order to generate the expression-profile that is
-#   used as a feature-vector in the cell type classifier.
-#########################################################################
+"""
+Runs Kallisto in order to generate the expression-profile that is
+used as a feature-vector in the cell type classifier.
+
+Authors: Matthew Bernstein <mbernstein@morgridge.org>
+"""
 
 from collections import defaultdict
 import os
