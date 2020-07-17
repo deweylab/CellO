@@ -184,8 +184,6 @@ def predict(
         print("program or by running cello_classify with the '-t' flag.")
         exit()
 
-    print("The units are", units)
-
     # Get units into log(TPM+1)
     if assay == FULL_LENGTH_ASSAY:
         if units in set([COUNTS_UNITS, CPM_UNITS, LOG1_CPM_UNITS]):
