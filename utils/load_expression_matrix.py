@@ -38,6 +38,7 @@ def load_data(
             hdf5_cells_key,
             hdf5_genes_key
         )
+    ad.raw = ad
     return ad
 
 def _read_10x(data_loc):

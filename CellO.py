@@ -184,6 +184,7 @@ def predict(
         print("program or by running cello_classify with the '-t' flag.")
         exit()
 
+    print("The units are", units)
 
     # Get units into log(TPM+1)
     if assay == FULL_LENGTH_ASSAY:
@@ -194,8 +195,10 @@ def predict(
                 'units of either LOG1_TPM or log(TPM+1) for this assay type.')
             exit() 
     if units == COUNTS_UNITS:
+        print('Normalizing counts...')
         sc.pp.normalize_total(ad, target_sum=1e6)
         sc.pp.log1p(ad)
+        print('done.')
     elif units in set([CPM_UNITS, TPM_UNITS]):
         sc.pp.log1p(ad)
 
@@ -319,11 +322,11 @@ def _raw_probabilities(
     # Shuffle columns to be in accordance with model
     features = mod.classifier.features
     ad = ad[:,features]
-    ad.raw = ad
+    ad_raw = ad.raw[:,features]
 
     # Cluster
     if cluster and ad.X.shape[0] > 50: 
-        cell_to_clust, ad_clust = _cluster(ad, res, units)
+        cell_to_clust, ad_clust = _cluster(ad, ad_raw, res, units)
         conf_df, score_df = mod.predict(ad_clust.X, ad_clust.obs.index)
     else:
         cell_to_clust = None
@@ -331,10 +334,12 @@ def _raw_probabilities(
     return conf_df, cell_to_clust
  
 
-def _cluster(ad, res, units):
-    sc.pp.pca(ad)
+def _cluster(ad, ad_raw, res, units):
+    print('Clustering cells...')
+    sc.pp.pca(ad, )
     sc.pp.neighbors(ad)
     ad_clust = sc.tl.leiden(ad, resolution=res, copy=True)
+    print('done.')
 
     clusters = []
     X_mean_clust = []
@@ -349,15 +354,17 @@ def _cluster(ad, res, units):
             len(cells), 
             clust
         ))
-        X_clust = ad_clust[cells,:].raw.X
+        
+        # Aggregate cluster
+        X_clust = ad_raw[cells,:].X
         if units == LOG1_CPM_UNITS or units == LOG1_TPM_UNITS:
-            X_clust = np.exp(X_clust)-1
+            X_clust = (np.exp(X_clust)-1) / 1e6
         x_clust = np.sum(X_clust, axis=0)
         sum_x_clust = float(sum(x_clust))
         x_clust = np.array([x/sum_x_clust for x in x_clust])
         x_clust *= 1e6
         x_clust = np.log(x_clust+1)
-        X_mean_clust.append(x_clust)    
+        X_mean_clust.append(x_clust) 
         clusters.append(clust)
     X_mean_clust = np.array(X_mean_clust)
     ad_mean_clust = AnnData(
@@ -460,7 +467,7 @@ def _binarize_probabilities(
     ):
     # Map each label to its empirical threshold
     label_to_thresh = {
-        label: decision_df.loc[label]['empirical_threshold']
+        label: decision_df.loc[label]['threshold']
         for label in decision_df.index
     }
 

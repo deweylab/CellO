@@ -113,9 +113,9 @@ def main():
 
     results_df, finalized_binary_results_df, ms_results_df = CellO.predict(
         ad,
-        CellO.COUNTS_UNITS,
+        units,
         model,
-        assay='3_PRIME',
+        assay='assay',
         algo=algo,
         cluster=True,
         res=1.0
