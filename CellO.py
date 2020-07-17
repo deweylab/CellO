@@ -319,6 +319,7 @@ def _raw_probabilities(
     # Shuffle columns to be in accordance with model
     features = mod.classifier.features
     ad = ad[:,features]
+    ad.raw = ad
 
     # Cluster
     if cluster and ad.X.shape[0] > 50: 
@@ -327,7 +328,6 @@ def _raw_probabilities(
     else:
         cell_to_clust = None
         conf_df, score_df = mod.predict(ad.X, ad.obs.index)
-    conf_df.to_csv('HUH.tsv', sep='\t') # TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     return conf_df, cell_to_clust
  
 
@@ -349,8 +349,9 @@ def _cluster(ad, res, units):
             len(cells), 
             clust
         ))
-        X_clust = ad_clust[cells,:].X
-        X_clust = np.exp(X_clust)-1
+        X_clust = ad_clust[cells,:].raw.X
+        if units == LOG1_CPM_UNITS or units == LOG1_TPM_UNITS:
+            X_clust = np.exp(X_clust)-1
         x_clust = np.sum(X_clust, axis=0)
         sum_x_clust = float(sum(x_clust))
         x_clust = np.array([x/sum_x_clust for x in x_clust])
