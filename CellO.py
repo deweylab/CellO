@@ -78,7 +78,7 @@ QUALIFIER_TERMS = set([
     'CL:0002321'    # embryonic cell
 ])
 
-def train_model(ad, algo='IR'):
+def train_model(ad, algo='IR', log_dir=None):
     genes = ad.var.index
 
     # Load the training data
@@ -98,7 +98,7 @@ def train_model(ad, algo='IR'):
 
     # Match genes in test data to those in training
     # data
-    train_genes, train_ids, gene_indices = _match_genes(genes, all_genes)
+    train_genes, gene_indices = _match_genes(genes, all_genes, log_dir=log_dir)
 
     # Take a subset of the columns for the training-genes 
     X_train = X[:,gene_indices]
@@ -319,6 +319,7 @@ def _raw_probabilities(
 
     # Shuffle columns to be in accordance with model
     features = mod.classifier.features
+    print(features)
     ad = ad[:,features]
     ad_raw = ad.raw[:,features]
 
@@ -625,21 +626,36 @@ def _select_one_most_specific(
     )
     return df, df_ms
 
-def _match_genes(test_genes, all_genes, verbose=True):
+def _match_genes(test_genes, all_genes, verbose=True, log_dir=None):
     # Map each gene to its index
     gene_to_index = {
         gene: index
         for index, gene in enumerate(all_genes)
     }
-    if 'ENSG' in test_genes[0]:
-        if verbose:
-            print("Inferred that input file uses Ensembl gene Id's.")
+    if 'ENSG' in test_genes[0] and '.' not in test_genes[0]:
+        print("Inferred that input file uses Ensembl gene ID's.")
+        if '.' in test_genes[0]:
+            print("Inferred that gene ID's have version numbers")
+            test_genes = [
+                gene_id.split('.')[0]
+                for gene_id in test_genes
+            ]
         train_genes = sorted(set(test_genes) & set(all_genes))
+        not_found = set(all_genes) - set(test_genes)
         train_ids = train_genes
-        gene_indices = [
-            gene_to_index[gene]
-            for gene in train_genes
-        ]
+    elif 'ENSG' in test_genes[0] and '.' in test_genes[0]:
+        print("Inferred that input file uses Ensembl gene ID's with version numbers")
+        all_genes = set(all_genes)
+        train_ids = []
+        train_genes = []
+        not_found = []
+        for gene in test_genes:
+            gene_no_version = gene.split('.')[0]
+            if gene_no_version in all_genes:
+                train_ids.append(gene_no_version)
+                train_genes.append(gene)
+            else:
+                not_found.append(gene)
     elif len(set(['CD14', 'SOX2', 'NANOG', 'PECAM1']) & set(test_genes)) > 0:
         if verbose:
             print("Inferred that input file uses HGNC gene symbols.")
@@ -668,18 +684,19 @@ def _match_genes(test_genes, all_genes, verbose=True):
                         train_ids.append(idd)
             else:
                 not_found.append(sym)
-        gene_indices = [
-            gene_to_index[gene]
-            for gene in train_ids
-        ]
-    if verbose:
-        print('Of {} genes in test set, found {} of {} training set genes in input file.'.format(
-            len(test_genes),
-            len(train_ids),
-            len(all_genes)
-        ))
-        print('Did not find genes: {}'.format(not_found))
-    return train_genes, train_ids, gene_indices
+    gene_indices = [
+        gene_to_index[gene]
+        for gene in train_ids
+    ]
+    print('Of {} genes in test set, found {} of {} training set genes in input file.'.format(
+        len(test_genes),
+        len(train_ids),
+        len(all_genes)
+    ))
+    if log_dir:
+        with open(join(log_dir, 'genes_absent_from_training_set.tsv'), 'w') as f:
+            f.write('\n'.join(sorted(not_found)))
+    return train_genes, gene_indices
 
 
 if __name__ == "__main__":

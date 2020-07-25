@@ -2,7 +2,10 @@
 
 ## About
 
-CellO (Cell Ontology-based classification) is a Python package for performing cell type classification of human RNA-seq data. CellO makes hierarchical predictions against the [Cell Ontology](http://www.obofoundry.org/ontology/cl.html). These classifiers were trained on nearly all of the human primary cell, bulk RNA-seq data in the [Sequence Read Archive](https://www.ncbi.nlm.nih.gov/sra). 
+CellO (Cell Ontology-based classification) is a Python package for performing cell type classification of human RNA-seq data. CellO makes hierarchical predictions against the [Cell Ontology](http://www.obofoundry.org/ontology/cl.html). These classifiers were trained on nearly all of the human primary cell, bulk RNA-seq data in the [Sequence Read Archive](https://www.ncbi.nlm.nih.gov/sra).
+
+For more details see the manuscript:
+[Bernstein, M.N., Ma, J., Gleicher, M., Dewey, C.N. (2020).CellO: Comprehensive and hierarchical cell type classification of human cellswith the Cell Ontology. bioRxiv](https://www.biorxiv.org/content/10.1101/634097v2) 
 
 ## Dependencies
 
@@ -37,7 +40,9 @@ CellO uses a supervised machine learning classifier to classify the cell types w
 Given an output-prefix provided to CellO (this can include the path to the output), CellO outputs three tables formatted as tab-separated-value files: 
 * ``<output_prefix>.probability.tsv``: a NxM classification probability table of N cells and M cell types where element (i,j) is a probability value that describes CellO's confidence that cell i is of cell type j  
 * ``<output_prefix>.binary.tsv``: a NxM binary-decision matrix where element (i,j) is 1 if CellO predicts cell i to be of cell type j and is 0 otherwise.
-* ``<output_prefix>.most_specific.tsv``: a table mapping each cell to the most-specific predicted cell 
+* ``<output_prefix>.most_specific.tsv``: a table mapping each cell to the most-specific predicted cell
+* ``<output_prefix>.log``: a directory that stores log files that store details of CellO's execution
+* ``<output_prefix>.log/genes_absent_from_training_set.tsv``: if a new model is trained using the ``-t`` option, then this file will store the genes in CellO's training set that were _not_ found in the input dataset 
 
 Usage:
 

@@ -8,6 +8,7 @@ from optparse import OptionParser
 from os.path import join
 import pandas as pd
 import dill
+import subprocess
 
 def main():
     usage = "%prog [options] input_file" 
@@ -74,6 +75,10 @@ def main():
     from utils import the_ontology
     import CellO
 
+    # Create log directory
+    log_dir = '{}.log'.format(out_pref)
+    subprocess.run('mkdir {}'.format(log_dir), shell=True)
+
     # Load data
     print('Loading data from {}...'.format(data_loc))
     ad = load_expression_matrix.load_data(
@@ -96,10 +101,11 @@ def main():
             model=dill.load(f)
     else:
         # Load or train a model
-        model = CellO._retrieve_pretrained_model(ad, algo)
+        #model = CellO._retrieve_pretrained_model(ad, algo)
+        model = None
         if model is None:
             if options.train_model:
-                model = CellO.train_model(ad, algo=algo)
+                model = CellO.train_model(ad, algo=algo, log_dir=log_dir)
                 out_model_f = '{}.model.dill'.format(out_pref)
                 print('Writing trained model to {}'.format(out_model_f))
                 with open(out_model_f, 'wb') as f:
