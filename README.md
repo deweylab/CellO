@@ -42,7 +42,8 @@ Given an output-prefix provided to CellO (this can include the path to the outpu
 * ``<output_prefix>.binary.tsv``: a NxM binary-decision matrix where element (i,j) is 1 if CellO predicts cell i to be of cell type j and is 0 otherwise.
 * ``<output_prefix>.most_specific.tsv``: a table mapping each cell to the most-specific predicted cell
 * ``<output_prefix>.log``: a directory that stores log files that store details of CellO's execution
-* ``<output_prefix>.log/genes_absent_from_training_set.tsv``: if a new model is trained using the ``-t`` option, then this file will store the genes in CellO's training set that were _not_ found in the input dataset 
+* ``<output_prefix>.log/genes_absent_from_training_set.tsv``: if a new model is trained using the ``-t`` option, then this file will store the genes in CellO's training set that were _not_ found in the input dataset
+* ``<output_prefix>.log/clustering.tsv``: a TSV file mapping each cell to its assigned cluster. Note, that if pre-computed clusters are provided via the ``-p`` option, then this file will not be written. 
 
 Usage:
 
@@ -86,6 +87,12 @@ Options:
                         <output_prefix>.model.dill
   -m MODEL, --model=MODEL
                         Path to pretrained model file.
+  -p PRE_CLUSTERING, --pre_clustering=PRE_CLUSTERING
+                        A TSV file with pre-clustered cells. The first column
+                        stores the cell names/ID's (i.e. the column names of
+                        the input expression matrix) and the second column
+                        stores integers referring to each cluster. The TSV
+                        file should not have column names.
   -b, --ontology_term_ids
                         Use the less readable, but more rigorous Cell Ontology
                         term id's in output

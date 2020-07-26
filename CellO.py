@@ -127,6 +127,8 @@ def predict(
         assay='3_PRIME',
         algo='IR',
         cluster=True,
+        cell_to_cluster=None,
+        log_dir=None,
         res=1.0
     ):
     """
@@ -208,7 +210,9 @@ def predict(
         assay,
         algo=algo,
         cluster=True,
-        res=1.0
+        cell_to_clust=cell_to_cluster,
+        res=1.0,
+        log_dir=log_dir
     )
 
     # Binarize the output probabilities
@@ -283,7 +287,6 @@ def _retrieve_pretrained_model(ad, algo):
                 resource_package,
                 join("resources", "trained_models", model_fname)
             )
-            print(model_f)
             with open(model_f, 'rb') as f:
                 mod = dill.load(f)  
             feats = mod.classifier.features
@@ -312,26 +315,92 @@ def _raw_probabilities(
         mod,
         assay='3_PRIME', 
         algo='IR', 
-        cluster=True, 
+        cluster=True,
+        cell_to_clust=None,
         res=1.0,
+        log_dir=None
     ):
     assert check_compatibility(ad, mod)
 
     # Shuffle columns to be in accordance with model
     features = mod.classifier.features
-    print(features)
     ad = ad[:,features]
     ad_raw = ad.raw[:,features]
 
     # Cluster
-    if cluster and ad.X.shape[0] > 50: 
+    if cluster and ad.X.shape[0] > 50 and cell_to_clust is None: 
         cell_to_clust, ad_clust = _cluster(ad, ad_raw, res, units)
         conf_df, score_df = mod.predict(ad_clust.X, ad_clust.obs.index)
+        # Write the clusters to a log file
+        if log_dir:
+            df = pd.DataFrame(
+                data=[
+                    (cell, clust)
+                    for cell, clust in cell_to_clust.items()
+                ]
+            )
+            df = df.set_index(0)
+            clust_f = join(log_dir, 'clustering.tsv')
+            df.to_csv(clust_f, sep='\t', header=None)
+    elif cluster and cell_to_clust is not None:
+        ad_clust = _combine_by_cluster(cell_to_clust, ad, ad_raw, units)
+        conf_df, score_df = mod.predict(ad_clust.X, ad_clust.obs.index)
+        # TODO this is a bit hacky, but we want the clusters to be
+        # strings rather than ints
+        cell_to_clust = {
+            cell: str(clust)
+            for cell, clust in cell_to_clust.items()
+        }
     else:
         cell_to_clust = None
         conf_df, score_df = mod.predict(ad.X, ad.obs.index)
     return conf_df, cell_to_clust
- 
+
+
+def _aggregate_expression(X, units):
+    """
+    Given a matrix of counts where rows correspond to cells
+    and columns correspond to genes, aggregate the counts
+    to form a psuedo-bulk expression profile.
+    """
+    if units == LOG1_CPM_UNITS or units == LOG1_TPM_UNITS:
+        X = (np.exp(X)-1) / 1e6
+    x_clust = np.sum(X, axis=0)
+    sum_x_clust = float(sum(x_clust))
+    x_clust = np.array([x/sum_x_clust for x in x_clust])
+    x_clust *= 1e6
+    x_clust = np.log(x_clust+1)
+    return x_clust
+
+
+def _combine_by_cluster(cell_to_clust, ad, ad_raw, units):
+    df = pd.DataFrame(
+        data=[
+            (cell, clust)
+            for cell, clust in cell_to_clust.items()
+        ],
+        columns = ['cell', 'cluster']
+    )
+    df = df.set_index('cell')
+    clusters = []
+    X_mean_clust = []
+    for clust in sorted(set(cell_to_clust.values())):
+        cells = df.loc[df['cluster'] == clust].index
+        X_clust = ad_raw[cells,:].X
+        x_clust = _aggregate_expression(X_clust, units)
+        X_mean_clust.append(x_clust)
+        clusters.append(str(clust))
+    X_mean_clust = np.array(X_mean_clust)
+    ad_mean_clust = AnnData(
+        X=X_mean_clust,
+        var=ad.var,
+        obs=pd.DataFrame(
+            data=clusters,
+            index=clusters
+        )
+    )
+    return ad_mean_clust
+
 
 def _cluster(ad, ad_raw, res, units):
     print('Clustering cells...')
@@ -356,13 +425,14 @@ def _cluster(ad, ad_raw, res, units):
         
         # Aggregate cluster
         X_clust = ad_raw[cells,:].X
-        if units == LOG1_CPM_UNITS or units == LOG1_TPM_UNITS:
-            X_clust = (np.exp(X_clust)-1) / 1e6
-        x_clust = np.sum(X_clust, axis=0)
-        sum_x_clust = float(sum(x_clust))
-        x_clust = np.array([x/sum_x_clust for x in x_clust])
-        x_clust *= 1e6
-        x_clust = np.log(x_clust+1)
+        #if units == LOG1_CPM_UNITS or units == LOG1_TPM_UNITS:
+        #    X_clust = (np.exp(X_clust)-1) / 1e6
+        #x_clust = np.sum(X_clust, axis=0)
+        #sum_x_clust = float(sum(x_clust))
+        #x_clust = np.array([x/sum_x_clust for x in x_clust])
+        #x_clust *= 1e6
+        #x_clust = np.log(x_clust+1)
+        x_clust = _aggregate_expression(X_clust, units)
         X_mean_clust.append(x_clust) 
         clusters.append(clust)
     X_mean_clust = np.array(X_mean_clust)

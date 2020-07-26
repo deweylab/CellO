@@ -23,6 +23,7 @@ def main():
     parser.add_option("-s", "--assay", help="Sequencing assay. Must be one of: '3_PRIME', 'FULL_LENGTH'")
     parser.add_option("-t", "--train_model", action="store_true", help="If the genes in the input matrix don't match what is expected by the classifier, then train a classifier on the input genes. The model will be saved to <output_prefix>.model.dill")
     parser.add_option("-m", "--model", help="Path to pretrained model file.")
+    parser.add_option("-p", "--pre_clustering", help="A TSV file with pre-clustered cells. The first column stores the cell names/ID's (i.e. the column names of the input expression matrix) and the second column stores integers referring to each cluster. The TSV file should not have column names.")
     parser.add_option("-b", "--ontology_term_ids", action="store_true", help="Use the less readable, but more rigorous Cell Ontology term id's in output")
     parser.add_option("-o", "--output_prefix", help="Prefix for all output files. This prefix may contain a path.")
     (options, args) = parser.parse_args()
@@ -60,6 +61,19 @@ def main():
     else:
         algo = 'IR'
 
+    # Parse the pre-clustered cells
+    if options.pre_clustering:
+        pre_clustering_f = options.pre_clustering
+        cell_to_cluster = {}
+        with open(pre_clustering_f, 'r') as f:
+            for l in f:
+                toks = l.split('\t')
+                cell = toks[0].strip()
+                clust = int(toks[1].strip())
+                cell_to_cluster[cell] = clust
+    else:
+        cell_to_cluster = None
+        
     try:
         assert options.units
     except:
@@ -124,6 +138,8 @@ def main():
         assay='assay',
         algo=algo,
         cluster=True,
+        cell_to_cluster=cell_to_cluster,
+        log_dir=log_dir,
         res=1.0
     )
 
