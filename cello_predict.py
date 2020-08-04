@@ -115,8 +115,7 @@ def main():
             model=dill.load(f)
     else:
         # Load or train a model
-        #model = CellO._retrieve_pretrained_model(ad, algo)
-        model = None
+        model = CellO._retrieve_pretrained_model(ad, algo)
         if model is None:
             if options.train_model:
                 model = CellO.train_model(ad, algo=algo, log_dir=log_dir)
