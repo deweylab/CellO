@@ -29,7 +29,7 @@ def load_data(
         ad = _read_csv(
             data_loc,
             ',',
-            options.rows_cells
+            rows_cells
         )
     elif data_type == 'HDF5':
         ad = _read_hdf5(
