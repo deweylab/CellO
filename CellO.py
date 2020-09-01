@@ -98,10 +98,17 @@ def train_model(ad, algo='IR', log_dir=None):
 
     # Match genes in test data to those in training
     # data
-    train_genes, gene_indices = _match_genes(genes, all_genes, log_dir=log_dir)
+    train_genes, gene_to_indices = _match_genes(genes, all_genes, log_dir=log_dir)
 
-    # Take a subset of the columns for the training-genes 
-    X_train = X[:,gene_indices]
+    # Take a subset of the columns for the training-genes. Note
+    # that if a given gene in the test set maps to multiple training
+    # genes, then we sum over the training genes. 
+    X_train = []
+    for gene in train_genes:
+        indices = gene_to_indices[gene]
+        X_train.append(np.sum(X[:,indices], axis=1))
+    X_train = np.array(X_train).T
+    assert X_train.shape[1] == len(train_genes)
 
     # Train the model on these genes
     print('Training model...')
@@ -119,6 +126,10 @@ def train_model(ad, algo='IR', log_dir=None):
     )
     print('done.')
     return mod
+
+def load_training_set():
+    r = load_training_data.load(UNITS)
+    return r
 
 def predict(
         ad,
@@ -425,13 +436,6 @@ def _cluster(ad, ad_raw, res, units):
         
         # Aggregate cluster
         X_clust = ad_raw[cells,:].X
-        #if units == LOG1_CPM_UNITS or units == LOG1_TPM_UNITS:
-        #    X_clust = (np.exp(X_clust)-1) / 1e6
-        #x_clust = np.sum(X_clust, axis=0)
-        #sum_x_clust = float(sum(x_clust))
-        #x_clust = np.array([x/sum_x_clust for x in x_clust])
-        #x_clust *= 1e6
-        #x_clust = np.log(x_clust+1)
         x_clust = _aggregate_expression(X_clust, units)
         X_mean_clust.append(x_clust) 
         clusters.append(clust)
@@ -470,7 +474,7 @@ def _retrieve_empirical_thresholds(ad, algo):
                 mod = dill.load(f)  
             feats = mod.classifier.features
             # Compute the fraction of model-features that are in the input dataset
-            matched_genes = _match_genes(ad.var.index, feats, verbose=False)[1]
+            matched_genes, _ = _match_genes(ad.var.index, feats, verbose=False)
             common = len(frozenset(feats) & frozenset(matched_genes)) / len(feats)
             if common >= max_genes_common:
                 max_genes_common = common
@@ -487,7 +491,7 @@ def _retrieve_empirical_thresholds(ad, algo):
             with open(model_f, 'rb') as f:
                 mod = dill.load(f)
             feats = mod.classifier.features
-            matched_genes = _match_genes(ad.var.index, feats, verbose=False)[1]
+            matched_genes, _ = _match_genes(ad.var.index, feats, verbose=False)
             common = len(frozenset(feats) & frozenset(matched_genes)) / len(feats)
             if common >= max_genes_common:
                 max_genes_common = common
@@ -498,22 +502,6 @@ def _retrieve_empirical_thresholds(ad, algo):
     print('Using thresholds stored in {}'.format(best_thresh_f))
     thresh_df = pd.read_csv(best_thresh_f, sep='\t', index_col=0)
     return thresh_df
-
-
-
-    # TODO Decided on whether to load the 10x thresholds or all genes thresholds
-    #if algo == 'IR':
-    #    thresh_f = pr.resource_filename(
-    #        resource_package,
-    #        join("resources", "trained_models", "ir.all_genes_thresholds.tsv")
-    #    )
-    #elif algo == 'CLR':
-    #    thresh_f = pr.resource_filename(
-    #        resource_package,
-    #        join("resources", "trained_models", "clr.all_genes_thresholds.tsv")
-    #    ) 
-    #return pd.read_csv(thresh_f, sep='\t', index_col=0)
-
 
 
 def _retrieve_label_graph():
@@ -696,7 +684,7 @@ def _select_one_most_specific(
     )
     return df, df_ms
 
-def _match_genes(test_genes, all_genes, verbose=True, log_dir=None):
+def _match_genes(test_genes, all_genes, verbose=True, log_dir=None, ret_ids=False):
     # Map each gene to its index
     gene_to_index = {
         gene: index
@@ -713,17 +701,23 @@ def _match_genes(test_genes, all_genes, verbose=True, log_dir=None):
         train_genes = sorted(set(test_genes) & set(all_genes))
         not_found = set(all_genes) - set(test_genes)
         train_ids = train_genes
+        gene_to_indices = {
+            gene: [gene_to_index[gene]]
+            for gene in train_genes
+        }
     elif 'ENSG' in test_genes[0] and '.' in test_genes[0]:
         print("Inferred that input file uses Ensembl gene ID's with version numbers")
         all_genes = set(all_genes)
         train_ids = []
         train_genes = []
         not_found = []
+        gene_to_indices = {}
         for gene in test_genes:
             gene_no_version = gene.split('.')[0]
             if gene_no_version in all_genes:
                 train_ids.append(gene_no_version)
                 train_genes.append(gene)
+                gene_to_indices[gene] = [gene_to_index[gene_no_version]]
             else:
                 not_found.append(gene)
     elif len(set(['CD14', 'SOX2', 'NANOG', 'PECAM1']) & set(test_genes)) > 0:
@@ -745,6 +739,7 @@ def _match_genes(test_genes, all_genes, verbose=True, log_dir=None):
         train_genes = []
         all_genes_s = set(all_genes)
         not_found = []
+        gene_to_indices = defaultdict(lambda: []) 
         for sym in test_genes:
             if sym in sym_to_ids:
                 ids = sym_to_ids[sym]
@@ -752,12 +747,10 @@ def _match_genes(test_genes, all_genes, verbose=True, log_dir=None):
                     if idd in all_genes_s:
                         train_genes.append(sym)
                         train_ids.append(idd)
+                        gene_to_indices[sym].append(gene_to_index[idd])
             else:
                 not_found.append(sym)
-    gene_indices = [
-        gene_to_index[gene]
-        for gene in train_ids
-    ]
+        gene_to_indices = dict(gene_to_indices)
     print('Of {} genes in test set, found {} of {} training set genes in input file.'.format(
         len(test_genes),
         len(train_ids),
@@ -766,7 +759,7 @@ def _match_genes(test_genes, all_genes, verbose=True, log_dir=None):
     if log_dir:
         with open(join(log_dir, 'genes_absent_from_training_set.tsv'), 'w') as f:
             f.write('\n'.join(sorted(not_found)))
-    return train_genes, gene_indices
+    return train_genes, gene_to_indices
 
 
 if __name__ == "__main__":
