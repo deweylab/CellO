@@ -16,6 +16,7 @@ from scipy.io import mmread
 import numpy as np
 import json
 from collections import defaultdict
+import os
 
 from utils import the_ontology
 from utils import load_expression_matrix
@@ -70,6 +71,7 @@ PREPROCESSOR_PARAMS = [{
     "n_components": 3000
 }]
 
+CELL_ONTOLOGY = the_ontology.the_ontology()
 
 QUALIFIER_TERMS = set([
     'CL:2000001',   # peripheral blood mononuclear cell
@@ -79,6 +81,28 @@ QUALIFIER_TERMS = set([
 ])
 
 def train_model(ad, algo='IR', log_dir=None):
+    """
+    Train a CellO model based on the genes of an 
+    input dataset.
+
+    Parameters
+    ----------
+
+    ad : AnnData object
+        Expression matrix of n cells by m genes
+
+    algo : String
+        The name of the algorithm used to train the model. 'IR' 
+        trains a model using isotonic regression. 'CLR' trains
+        a model using cascaded logistic regression.
+
+    log_dir : String
+        Path to a directory in which to write logging information
+
+    Returns
+    -------
+    A trained CellO model
+    """
     genes = ad.var.index
 
     # Load the training data
@@ -305,6 +329,44 @@ def _retrieve_pretrained_model(ad, algo):
                 return mod
     print('Could not find compatible pre-trained model.')
     return None
+
+
+def retreive_pretrained_model_from_local(ad, model_dir):
+    """
+    Search a local directory that may store custom, pre-trained
+    models and return the first model whose expected genes match
+    that of the input dataset.
+
+    This is a helper function for managing large collections
+    of pre-trained models that may be used for running on diverse
+    datasets.
+
+    Parameters
+    ----------
+
+    ad : AnnData object
+        Expression matrix of n cells by m genes
+
+    model_dir: String
+        Path to a directory storing a set of pre-trained models
+        encoded as dill files.
+
+    Returns
+    -------
+    The first model object within model_dir that is compatible
+    with the input dataset. Returns None if no model was found.
+    """
+    for model_fname in os.listdir(model_dir):
+        model_f = join(model_dir, model_fname)
+        with open(model_f, 'rb') as f:
+            mod = dill.load(f)
+        feats = mod.classifier.features
+        if frozenset(feats) < frozenset(ad.var.index):
+            print("Found compatible model in file: ", model_f)
+            return mod
+    return None
+
+     
 
 def check_compatibility(ad, mod):
     return frozenset(mod.classifier.features) <= frozenset(ad.var.index)
@@ -650,12 +712,11 @@ def _select_one_most_specific(
     } 
    
     # Map each experiment to its finalized label
-    og = the_ontology.the_ontology()
     exp_to_update_pred = {}
     for exp, select_label in exp_to_select_pred_label.items():
         print('Item {} predicted to be "{} ({})"'.format(
             exp, 
-            og.id_to_term[select_label].name, 
+            CELL_ONTOLOGY.id_to_term[select_label].name, 
             select_label
         ))
         all_labels = label_to_ancestors[select_label] 
@@ -754,6 +815,8 @@ def _match_genes(test_genes, all_genes, verbose=True, log_dir=None):
                         train_ids.append(idd)
             else:
                 not_found.append(sym)
+    else:
+        raise ValueError("Unable to determine gene collection. Please make sure the input dataset specifies either HUGO gene symbols or Entrez gene ID's.")
     gene_indices = [
         gene_to_index[gene]
         for gene in train_ids
