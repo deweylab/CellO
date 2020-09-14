@@ -86,7 +86,6 @@ def main():
     # Load CellO after parsing arguments since CellO takes a while
     # to load the ontologies
     from utils import load_expression_matrix
-    from utils import the_ontology
     import CellO
 
     # Create log directory
@@ -144,17 +143,16 @@ def main():
 
     # Convert to human-readable ontology terms
     if not options.ontology_term_ids:
-        og = the_ontology.the_ontology()
         results_df.columns = [
-            og.id_to_term[x].name
+            CellO.CELL_ONTOLOGY.id_to_term[x].name
             for x in results_df.columns
         ]
         finalized_binary_results_df.columns = [
-            og.id_to_term[x].name
+            CellO.CELL_ONTOLOGY.id_to_term[x].name
             for x in finalized_binary_results_df.columns
         ]
         ms_results_df['most_specific_cell_type'] = [
-            og.id_to_term[x].name
+            CellO.CELL_ONTOLOGY.id_to_term[x].name
             for x in ms_results_df['most_specific_cell_type']
         ]
 
