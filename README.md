@@ -87,6 +87,11 @@ Options:
                         <output_prefix>.model.dill
   -m MODEL, --model=MODEL
                         Path to pretrained model file.
+  -l REMOVE_ANATOMICAL, --remove_anatomical=REMOVE_ANATOMICAL
+                        A comma-separated list of terms ID's from the Uberon
+                        Ontology specifying which tissues to use to filter
+                        results. All cell types known to be resident to the
+                        input tissues will be filtered from the results.
   -p PRE_CLUSTERING, --pre_clustering=PRE_CLUSTERING
                         A TSV file with pre-clustered cells. The first column
                         stores the cell names/ID's (i.e. the column names of

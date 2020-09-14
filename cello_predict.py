@@ -23,6 +23,7 @@ def main():
     parser.add_option("-s", "--assay", help="Sequencing assay. Must be one of: '3_PRIME', 'FULL_LENGTH'")
     parser.add_option("-t", "--train_model", action="store_true", help="If the genes in the input matrix don't match what is expected by the classifier, then train a classifier on the input genes. The model will be saved to <output_prefix>.model.dill")
     parser.add_option("-m", "--model", help="Path to pretrained model file.")
+    parser.add_option("-l", "--remove_anatomical", help="A comma-separated list of terms ID's from the Uberon Ontology specifying which tissues to use to filter results. All cell types known to be resident to the input tissues will be filtered from the results.")
     parser.add_option("-p", "--pre_clustering", help="A TSV file with pre-clustered cells. The first column stores the cell names/ID's (i.e. the column names of the input expression matrix) and the second column stores integers referring to each cluster. The TSV file should not have column names.")
     parser.add_option("-b", "--ontology_term_ids", action="store_true", help="Use the less readable, but more rigorous Cell Ontology term id's in output")
     parser.add_option("-o", "--output_prefix", help="Prefix for all output files. This prefix may contain a path.")
@@ -88,6 +89,18 @@ def main():
     from utils import load_expression_matrix
     import CellO
 
+    # One last argument to parse that relies on the Cell Ontology itself
+    if options.remove_anatomical:
+        remove_anatomical_subterms = options.remove_anatomical.split(',')
+        for term in remove_anatomical_subterms:
+            try:
+                assert term in CellO.CELL_ONTOLOGY.id_to_term
+            except AssertionError:
+                print()
+                print('Error. For argument --remove_anatomical (-l), the term "{}" was not found in the Uberon Ontology.'.format(term))
+                exit()
+
+
     # Create log directory
     log_dir = '{}.log'.format(out_pref)
     subprocess.run('mkdir {}'.format(log_dir), shell=True)
@@ -138,7 +151,8 @@ def main():
         cluster=True,
         cell_to_cluster=cell_to_cluster,
         log_dir=log_dir,
-        res=1.0
+        res=1.0,
+        remove_anatomical_subterms=remove_anatomical_subterms
     )
 
     # Convert to human-readable ontology terms

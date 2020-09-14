@@ -84,6 +84,16 @@ ONTO_PATCH = {
             "source_term": "CL:0008024",    # pancreatic endocrine cell
             "target_term": "CL:0000164",    # enteroendocrine cell
             "edge_type": "is_a"
+        },
+        {
+            "source_term": "CL:0000583",    # alveolar macrophage
+            "target_term": "CL:1001603",    # lung macrophage
+            "edge_type": "is_a"
+        },
+        {
+            'source_term': 'CL:0000091',        # Kupffer cell
+            "target_term": "UBERON:0002107",    # liver
+            "edge_type": "part_of"
         }
     ]
 }

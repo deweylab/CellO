@@ -151,9 +151,11 @@ def train_model(ad, algo='IR', log_dir=None):
     print('done.')
     return mod
 
+
 def load_training_set():
     r = load_training_data.load(UNITS)
     return r
+
 
 def predict(
         ad,
@@ -164,7 +166,8 @@ def predict(
         cluster=True,
         cell_to_cluster=None,
         log_dir=None,
-        res=1.0
+        res=1.0,
+        remove_anatomical_subterms=None
     ):
     """
     Classify cell types for a given expression matrix.
@@ -249,6 +252,22 @@ def predict(
         res=1.0,
         log_dir=log_dir
     )
+
+    # Filter by anatomical entity
+    if remove_anatomical_subterms is not None:
+        print("Filtering predictions for cells found in:\n{}".format(
+            "\n".join([
+                "{} ({})".format(
+                    CELL_ONTOLOGY.id_to_term[term].name,
+                    term
+                )
+                for term in remove_anatomical_subterms
+            ])
+        ))
+        results_df = _filter_by_anatomical_entity(
+            results_df, 
+            remove_subterms_of=remove_anatomical_subterms
+        )
 
     # Binarize the output probabilities
     threshold_df = _retrieve_empirical_thresholds(ad, algo)
@@ -378,9 +397,9 @@ def retreive_pretrained_model_from_local(ad, model_dir):
     return None
 
      
-
 def check_compatibility(ad, mod):
     return frozenset(mod.classifier.features) <= frozenset(ad.var.index)
+
 
 def _raw_probabilities(
         ad, 
@@ -579,6 +598,23 @@ def _retrieve_label_graph():
     return label_graph
 
 
+def _filter_by_anatomical_entity(
+        results_df,
+        remove_subterms_of 
+    ):
+    labels = set(results_df.columns)
+    all_subterms = set()
+    for term in remove_subterms_of:
+        subterms = CELL_ONTOLOGY.recursive_relationship(
+            term, 
+            ['inv_is_a', 'inv_part_of']
+        )
+        labels -= subterms
+    labels = sorted(labels)
+    results_df = results_df[labels]
+    return results_df
+
+
 def _binarize_probabilities(
         results_df, 
         decision_df, 
@@ -744,6 +780,7 @@ def _select_one_most_specific(
         columns=['most_specific_cell_type']
     )
     return df, df_ms
+
 
 def _match_genes(test_genes, all_genes, verbose=True, log_dir=None, ret_ids=False):
     # Map each gene to its index
