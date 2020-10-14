@@ -90,6 +90,7 @@ def main():
     import CellO
 
     # One last argument to parse that relies on the Cell Ontology itself
+    remove_anatomical_subterms = None
     if options.remove_anatomical:
         remove_anatomical_subterms = options.remove_anatomical.split(',')
         for term in remove_anatomical_subterms:
@@ -99,7 +100,6 @@ def main():
                 print()
                 print('Error. For argument --remove_anatomical (-l), the term "{}" was not found in the Uberon Ontology.'.format(term))
                 exit()
-
 
     # Create log directory
     log_dir = '{}.log'.format(out_pref)
