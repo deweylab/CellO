@@ -607,7 +607,7 @@ def _filter_by_anatomical_entity(
     for term in remove_subterms_of:
         subterms = CELL_ONTOLOGY.recursive_relationship(
             term, 
-            ['inv_is_a', 'inv_part_of']
+            ['inv_is_a', 'inv_part_of', 'inv_located_in']
         )
         labels -= subterms
     labels = sorted(labels)

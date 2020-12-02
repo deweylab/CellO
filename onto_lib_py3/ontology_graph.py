@@ -328,6 +328,7 @@ def parse_obos(ont_to_loc, restrict_to_idspaces=None, include_obsolete=False):
     for term in list(id_to_term.values()):
         add_inverse_relationship_to_parents(term, "is_a", "inv_is_a")
         add_inverse_relationship_to_parents(term, "part_of", "inv_part_of")
+        add_inverse_relationship_to_parents(term, "located_in", "inv_located_in")
 
     #return OntologyGraph(id_to_term, name_to_ids)
     return OntologyGraph(id_to_term)
