@@ -4,8 +4,8 @@
 
 CellO (Cell Ontology-based classification) is a Python package for performing cell type classification of human RNA-seq data. CellO makes hierarchical predictions against the [Cell Ontology](http://www.obofoundry.org/ontology/cl.html). These classifiers were trained on nearly all of the human primary cell, bulk RNA-seq data in the [Sequence Read Archive](https://www.ncbi.nlm.nih.gov/sra).
 
-For more details see the manuscript:
-[Bernstein, M.N., Ma, J., Gleicher, M., Dewey, C.N. (2020).CellO: Comprehensive and hierarchical cell type classification of human cellswith the Cell Ontology. bioRxiv](https://www.biorxiv.org/content/10.1101/634097v2) 
+For more details, see the paper:
+[Bernstein, M.N., Ma, J., Gleicher, M., Dewey, C.N. (2020). CellO: Comprehensive and hierarchical cell type classification of human cellswith the Cell Ontology. *iScience*, 24(1), 101913.](https://www.sciencedirect.com/science/article/pii/S258900422031110X) 
 
 ## Dependencies
 
