@@ -436,7 +436,14 @@ def _raw_probabilities(
             df.to_csv(clust_f, sep='\t', header=None)
     elif cluster and cell_to_clust is not None:
         ad_clust = _combine_by_cluster(cell_to_clust, ad, ad_raw, units)
-        conf_df, score_df = mod.predict(ad_clust.X, ad_clust.obs.index)
+        # If there's only one cluster, expand dimensions of expression
+        # matrix. AnnData shrinks it, so we need to keep it as a Numpy
+        # array.
+        if len(ad_clust.X.shape) == 1:
+            expr = np.expand_dims(ad_clust.X, 0)
+        else:
+            expr = ad_clust.X
+        conf_df, score_df = mod.predict(expr, ad_clust.obs.index)
         # TODO this is a bit hacky, but we want the clusters to be
         # strings rather than ints
         cell_to_clust = {
@@ -721,7 +728,7 @@ def _select_one_most_specific(
         exp: label_graph.most_specific_nodes(set(pred_labels) - QUALIFIER_TERMS)
         for exp, pred_labels in exp_to_pred_labels.items()
     }
- 
+
     # Select cells with highest probability
     exp_to_select_pred_label = {
         exp: max(
@@ -758,7 +765,7 @@ def _select_one_most_specific(
     for exp in binary_results_df.index:
         row = []
         for label in binary_results_df.columns:
-            if label in exp_to_update_pred[exp]:
+            if exp in exp_to_update_pred and label in exp_to_update_pred[exp]:
                 row.append(1)
             else:
                 row.append(0)
@@ -771,11 +778,15 @@ def _select_one_most_specific(
     )
 
     # Most specific cell type labels
+    da = []
+    for exp in binary_results_df.index:
+        if exp in exp_to_select_pred_label:
+            da.append(exp_to_select_pred_label[exp])
+        else:
+            # There was no prediction for this experiment
+            da.append('')
     df_ms = pd.DataFrame(
-        data=[
-            exp_to_select_pred_label[exp]
-            for exp in binary_results_df.index
-        ],
+        data=da,
         index = binary_results_df.index,
         columns=['most_specific_cell_type']
     )
