@@ -27,7 +27,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="cello",
-    version="1.2.0",
+    version="1.3.0",
     description="CellO",
     author="Matthew N. Bernstein",
     author_email="mbernstein@morgridge.org",
