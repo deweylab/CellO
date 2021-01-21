@@ -5,6 +5,7 @@ Authors: Matthew Bernstein <mbernstein@morgridge.org>
 """
 
 from optparse import OptionParser
+import os
 from os.path import join
 import pandas as pd
 import dill
@@ -22,6 +23,7 @@ def main():
     parser.add_option("-u", "--units", help="Units of expression. Must be one of: 'COUNTS', 'CPM', 'LOG1_CPM', 'TPM', 'LOG1_TPM'")
     parser.add_option("-s", "--assay", help="Sequencing assay. Must be one of: '3_PRIME', 'FULL_LENGTH'")
     parser.add_option("-t", "--train_model", action="store_true", help="If the genes in the input matrix don't match what is expected by the classifier, then train a classifier on the input genes. The model will be saved to <output_prefix>.model.dill")
+    parser.add_option("-f", "--resource_location", help="Path to CellO resources directory, named 'resources',  which stores gene mappings, pre-trained models, and training sets. If not supplied, CellO will look for 'resources' in the current directory. If resources do not exist at provided location, they will be downloaded automatically.")
     parser.add_option("-m", "--model", help="Path to pretrained model file.")
     parser.add_option("-l", "--remove_anatomical", help="A comma-separated list of terms ID's from the Uberon Ontology specifying which tissues to use to filter results. All cell types known to be resident to the input tissues will be filtered from the results.")
     parser.add_option("-p", "--pre_clustering", help="A TSV file with pre-clustered cells. The first column stores the cell names/ID's (i.e. the column names of the input expression matrix) and the second column stores integers referring to each cluster. The TSV file should not have column names.")
@@ -31,6 +33,11 @@ def main():
 
     data_loc = args[0]
     out_pref = options.output_prefix
+
+    if options.resource_location:
+        rsrc_loc = options.resource_location
+    else:
+        rsrc_loc = os.getcwd()
 
     # Input validation
     if options.model is not None and options.train_model is not None:
@@ -86,8 +93,8 @@ def main():
 
     # Load CellO after parsing arguments since CellO takes a while
     # to load the ontologies
-    from utils import load_expression_matrix
-    import CellO
+    import cello
+    from cello import load_expression_matrix
 
     # One last argument to parse that relies on the Cell Ontology itself
     remove_anatomical_subterms = None
@@ -127,10 +134,10 @@ def main():
             model=dill.load(f)
     else:
         # Load or train a model
-        model = CellO._retrieve_pretrained_model(ad, algo)
+        model = cello._retrieve_pretrained_model(ad, algo, rsrc_loc)
         if model is None:
             if options.train_model:
-                model = CellO.train_model(ad, algo=algo, log_dir=log_dir)
+                model = cello.train_model(ad, algo=algo, log_dir=log_dir)
                 out_model_f = '{}.model.dill'.format(out_pref)
                 print('Writing trained model to {}'.format(out_model_f))
                 with open(out_model_f, 'wb') as f:
@@ -142,7 +149,7 @@ def main():
         print("Please train a classifier on this input gene set by either using the cello_train_model.py program or by running cello_classify with the '-t' flag.")
         exit()        
 
-    results_df, finalized_binary_results_df, ms_results_df = CellO.predict(
+    results_df, finalized_binary_results_df, ms_results_df = cello.predict(
         ad,
         units,
         model,
@@ -158,15 +165,15 @@ def main():
     # Convert to human-readable ontology terms
     if not options.ontology_term_ids:
         results_df.columns = [
-            CellO.CELL_ONTOLOGY.id_to_term[x].name
+            cello.CELL_ONTOLOGY.id_to_term[x].name
             for x in results_df.columns
         ]
         finalized_binary_results_df.columns = [
-            CellO.CELL_ONTOLOGY.id_to_term[x].name
+            cello.CELL_ONTOLOGY.id_to_term[x].name
             for x in finalized_binary_results_df.columns
         ]
         ms_results_df['most_specific_cell_type'] = [
-            CellO.CELL_ONTOLOGY.id_to_term[x].name
+            cello.CELL_ONTOLOGY.id_to_term[x].name
             for x in ms_results_df['most_specific_cell_type']
         ]
 
