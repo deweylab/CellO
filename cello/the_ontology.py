@@ -1,4 +1,4 @@
-from onto_lib_py3 import load_ontology
+from .onto_lib_py3 import load_ontology
 
 GO_ONT_CONFIG_ID = '18'
 UNIT_OG_ID = '7'

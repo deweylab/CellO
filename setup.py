@@ -1,27 +1,63 @@
-import setuptools
+import os
+import sys
+from setuptools import setup
+
+install_requires = [
+    "Cython>=0.29.17",
+    "quadprog>=0.1.6",
+    "numpy>=1.17.1",
+    "scikit-learn>=0.22.2.post1",
+    "scipy>=1.3.1",
+    "pandas>=0.23.4",
+    "dill>=0.3.1.1",
+    "h5py>=2.10.0",
+    "anndat>=0.7.1",
+    "scanpy>=1.5.1",
+    "leidenalg>=0.7.0"
+]
+
+if sys.version_info[:2] < (3, 5):
+    raise RuntimeError("Python version >=3.5 required.")
+
+version_py = os.path.join(os.path.dirname(__file__), "magic", "version.py")
+version = open(version_py).read().strip().split("=")[-1].replace('"', "").strip()
 
 with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+    readme = fh.read()
 
-setuptools.setup(
-    name="example-pkg-mbernste", # Replace with your own username
+setup(
+    name="cello",
     version="1.2.0",
+    description="CellO",
     author="Matthew N. Bernstein",
     author_email="mbernstein@morgridge.org",
-    description="Hierarchical cell type classification with the Cell Ontology.",
-    long_description="""
-    CellO (Cell Ontology-based classification) is a Python package for performing 
-    cell type classification of human RNA-seq data. CellO makes hierarchical predictions 
-    against the Cell Ontology. These classifiers were trained on most of the human 
-    primary cell, bulk RNA-seq data in the Sequence Read Archive.
-    """,
-    long_description_content_type="text/markdown",
-    url="https://github.com/deweylab/CellO",
-    packages=setuptools.find_packages(),
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
+    packages=[
+        "cello",
+        "models",
+        "graph_lib"
     ],
-    python_requires='>=3.6',
+    license="MIT License",
+    install_requires=install_requires,
+    long_description=readme,
+    url="https://github.com/deweylab/CellO",
+    keywords=[
+        "scRNA-seq",
+        "cell-type",
+        "cell-ontology",
+        "gene-expression",
+        "computational-biology",
+    ],
+    classifiers=[
+        "Programming Language :: Python :: 3.6",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent"
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "Natural Language :: English",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: POSIX :: Linux",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
+    ],
 )
+
+
