@@ -112,7 +112,7 @@ def train_model(ad, rsrc_loc, algo='IR', log_dir=None):
     genes = ad.var.index
 
     # Load the training data
-    r = load_training_data.load(UNITS)
+    r = load_training_data.load(UNITS, rsrc_loc)
     og = r[0]
     label_graph = r[1]
     label_to_name = r[2]
@@ -885,8 +885,9 @@ def _match_genes(test_genes, all_genes, rsrc_loc, verbose=True, log_dir=None, re
             print("Inferred that input file uses HGNC gene symbols.")
         genes_f = join(
             rsrc_loc,
-            "gene_metadata", 
-            "biomart_id_to_symbol.tsv"
+            'resources',
+            'gene_metadata', 
+            'biomart_id_to_symbol.tsv'
         )
         with open(genes_f, 'r') as f:
             sym_to_ids = defaultdict(lambda: [])

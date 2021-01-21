@@ -6,7 +6,7 @@ from . import ontology_graph
 
 def load(ontology_index):
     resource_package = __name__
-    config_f = pr.resource_filename(resource_package, "./ontology_configurations.json")
+    config_f = pr.resource_filename(resource_package, "ontology_configurations.json")
     with open(config_f, "r") as f:
         j = json.load(f)
     ont_config = j[ontology_index]

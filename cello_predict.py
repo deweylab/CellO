@@ -137,7 +137,7 @@ def main():
         model = cello._retrieve_pretrained_model(ad, algo, rsrc_loc)
         if model is None:
             if options.train_model:
-                model = cello.train_model(ad, algo=algo, log_dir=log_dir)
+                model = cello.train_model(ad, rsrc_loc, algo=algo, log_dir=log_dir)
                 out_model_f = '{}.model.dill'.format(out_pref)
                 print('Writing trained model to {}'.format(out_model_f))
                 with open(out_model_f, 'wb') as f:

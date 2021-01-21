@@ -3,23 +3,36 @@ from os.path import join
 import h5py
 import sys
 from collections import defaultdict
-import pkg_resources as pr
-
-resource_package = __name__
 
 from . import the_ontology
 from graph_lib.graph import DirectedAcyclicGraph
 
-DATA_DIR = pr.resource_filename(
-    resource_package,
-    join("..", "resources", "training_set")
-) 
 
-def load(features):
-    labels_f = join(DATA_DIR, 'labels.json')
-    studys_f = join(DATA_DIR, 'experiment_to_study.json')
-    tags_f = join(DATA_DIR, 'experiment_to_tags.json')
-    expr_matrix_f = join(DATA_DIR, '{}.h5'.format(features))
+def load(features, rsrc_loc):
+    labels_f = join(
+        rsrc_loc, 
+        'resources',
+        'training_set',
+        'labels.json'
+    )
+    studys_f = join(
+        rsrc_loc, 
+        'resources',
+        'training_set',
+        'experiment_to_study.json'
+    )
+    tags_f = join(
+        rsrc_loc, 
+        'resources',
+        'training_set',
+        'experiment_to_tags.json'
+    )
+    expr_matrix_f = join(
+        rsrc_loc, 
+        'resources',
+        'training_set',
+        '{}.h5'.format(features)
+    )
 
     # Load the ontology
     og = the_ontology.the_ontology()
