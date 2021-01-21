@@ -1,0 +1,10 @@
+include cello/onto_lib_py3/ont_prefix_to_filename.json
+include cello/onto_lib_py3/ontology_configurations.json
+include cello/onto_lib_py3/metadata/term_to_extra_synonyms.json
+include cello/onto_lib_py3/metadata/term_to_remove_synonyms.json
+include cello/onto_lib_py3/obo/CL.18-11-13.obo	
+include cello/onto_lib_py3/obo/CVCL.17-01-30.obo
+include cello/onto_lib_py3/obo/DOID.17-01-30.obo	
+include cello/onto_lib_py3/obo/EFO.17-01-30.obo
+include cello/onto_lib_py3/obo/UBERON.17-01-30.obo	
+include cello/onto_lib_py3/obo/cellosaurus.2-29-16.obo

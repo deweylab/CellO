@@ -1,6 +1,6 @@
 import os
 import sys
-from setuptools import setup
+from setuptools import setup, find_packages
 
 install_requires = [
     "Cython>=0.29.17",
@@ -11,16 +11,13 @@ install_requires = [
     "pandas>=0.23.4",
     "dill>=0.3.1.1",
     "h5py>=2.10.0",
-    "anndat>=0.7.1",
+    "anndata>=0.7.1",
     "scanpy>=1.5.1",
     "leidenalg>=0.7.0"
 ]
 
 if sys.version_info[:2] < (3, 5):
     raise RuntimeError("Python version >=3.5 required.")
-
-version_py = os.path.join(os.path.dirname(__file__), "magic", "version.py")
-version = open(version_py).read().strip().split("=")[-1].replace('"', "").strip()
 
 with open("README.md", "r", encoding="utf-8") as fh:
     readme = fh.read()
@@ -33,12 +30,15 @@ setup(
     author_email="mbernstein@morgridge.org",
     packages=[
         "cello",
+        "cello.onto_lib_py3",
         "models",
         "graph_lib"
     ],
     license="MIT License",
     install_requires=install_requires,
     long_description=readme,
+    include_package_data=True,
+    zip_safe=True,
     url="https://github.com/deweylab/CellO",
     keywords=[
         "scRNA-seq",
@@ -57,7 +57,7 @@ setup(
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: POSIX :: Linux",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
-    ],
+    ]
 )
 
 
