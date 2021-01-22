@@ -22,9 +22,9 @@ from . import the_ontology
 from . import load_expression_matrix
 from . import load_training_data
 from . import download_resources
-import models
-from models import model
-from graph_lib.graph import DirectedAcyclicGraph
+from . import models
+from .models import model
+from .graph_lib.graph import DirectedAcyclicGraph
 
 # Units keywords
 COUNTS_UNITS = 'COUNTS'

@@ -31,8 +31,8 @@ setup(
     packages=[
         "cello",
         "cello.onto_lib_py3",
-        "models",
-        "graph_lib"
+        "cello.models",
+        "cello.graph_lib"
     ],
     license="MIT License",
     install_requires=install_requires,

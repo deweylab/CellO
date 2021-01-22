@@ -5,7 +5,7 @@ import sys
 from collections import defaultdict
 
 from . import the_ontology
-from graph_lib.graph import DirectedAcyclicGraph
+from .graph_lib.graph import DirectedAcyclicGraph
 
 
 def load(features, rsrc_loc):
