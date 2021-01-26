@@ -39,7 +39,13 @@ def load_data(
             hdf5_genes_key
         )
     else:
-        raise ValueError("Error! You specified the datatype '{}', which is not an available option. Please use one of the following options to specify your data type: '10x', 'TSV', 'CSV', or 'HDF5'.".format(data_type))
+        raise ValueError(
+            """
+            Error! You specified the datatype '{}', which is not an 
+            available option. Please use one of the following options 
+            to specify your data type: '10x', 'TSV', 'CSV', or 'HDF5'.
+            """.format(data_type)
+        )
     ad.raw = ad
     return ad
 

@@ -8,7 +8,6 @@ from optparse import OptionParser
 from os.path import join
 import pandas as pd
 from anndata import AnnData
-import scanpy as sc
 import h5py
 import dill
 from scipy.io import mmread
@@ -38,6 +37,7 @@ FULL_LENGTH_ASSAY = 'FULL_LENGTH'
 THREE_PRIMED_ASSAY = '3_PRIME'
 
 UNITS = 'log_tpm'
+
 ALGO_TO_INTERNAL = {
     'IR': 'isotonic_regression',
     'CLR': 'cdc'
@@ -170,14 +170,10 @@ def load_training_set():
 
 def predict(
         ad,
-        units,
         mod,
-        assay='3_PRIME',
         algo='IR',
-        cluster=True,
-        cell_to_cluster=None,
+        clust_key='leiden',
         log_dir=None,
-        res=1.0,
         remove_anatomical_subterms=None,
         rsrc_loc=None
     ):
@@ -189,21 +185,10 @@ def predict(
     ad : AnnData object
         Expression matrix of n cells by m genes
 
-    units: String must be one of {'COUNTS', 'CPM', LOG1_CPM, 'TPM', or 'LOG1_TPM'}
-        Units of values in ad.X. These keywords refer to the following units:
-            COUNTS: raw read counts
-            CPM: counts per million
-            LOG1_CPM: log(CPM+1)
-            TPM: transcripts per million
-            LOG1_TPM: log(TPM+1) 
-
     mod: Model, default: None
         A trained classification model. If None, use a 
         pre-trained default model on all of the genes, or,
         if 'train' is True, then train a new model.
-
-    assay: String, must be one of {'3_PRIME', 'FULL_LENGTH'}
-        Whether this matrix is 3-prime-end or full-length sequencing.
 
     algo: String, optional, default: 'IR'
         The hierarchical classification algorithm to use. Must be one of {'IR', 'CLR'}. 
@@ -211,14 +196,10 @@ def predict(
             IR: isotonic regression correction
             CLR: cascaded logistic regression
 
-    cluster: Boolean, default: True
-        If True, cluster the expression matrix and run classifiation
-        on each cluster's mean expression profile
+    clust_key: String, default: 'leiden'
+        The key name in the observation annotation '.obs' that denotes
+        the cluster identity of each cell.
 
-    res: float, default: 1.0
-        If cluster=True, then run Leiden with this value for the 
-        resolution parameter
-    
     rsrc_loc: String, default: current directory
         Location of the CellO resources. If they are not located
         at this path, they will downloaded automatically.
@@ -247,32 +228,13 @@ def predict(
         print("program or by running cello_classify with the '-t' flag.")
         exit()
 
-    # Get units into log(TPM+1)
-    if assay == FULL_LENGTH_ASSAY:
-        if units in set([COUNTS_UNITS, CPM_UNITS, LOG1_CPM_UNITS]):
-            print('Error. The input units were specified as {}'.format(units),
-                'but the assay was specified as {}.'.format(assay),
-                'To run classification, please input expression matrix in ',
-                'units of either LOG1_TPM or log(TPM+1) for this assay type.')
-            exit() 
-    if units == COUNTS_UNITS:
-        print('Normalizing counts...')
-        sc.pp.normalize_total(ad, target_sum=1e6)
-        sc.pp.log1p(ad)
-        print('done.')
-    elif units in set([CPM_UNITS, TPM_UNITS]):
-        sc.pp.log1p(ad)
 
     # Compute raw classifier probabilities
     results_df, cell_to_clust = _raw_probabilities(
         ad,
-        units,
         mod,
-        assay,
         algo=algo,
-        cluster=True,
-        cell_to_clust=cell_to_cluster,
-        res=1.0,
+        clust_key=clust_key,
         log_dir=log_dir
     )
 
@@ -342,7 +304,6 @@ def predict(
             index=ad.obs.index,
             columns=ms_results_df.columns
         )
-
     return results_df, finalized_binary_results_df, ms_results_df
 
 
@@ -444,13 +405,9 @@ def check_compatibility(ad, mod):
 
 def _raw_probabilities(
         ad, 
-        units, 
         mod,
-        assay='3_PRIME', 
         algo='IR', 
-        cluster=True,
-        cell_to_clust=None,
-        res=1.0,
+        clust_key='leiden',
         log_dir=None
     ):
     assert check_compatibility(ad, mod)
@@ -458,25 +415,18 @@ def _raw_probabilities(
     # Shuffle columns to be in accordance with model
     features = mod.classifier.features
     ad = ad[:,features]
-    ad_raw = ad.raw[:,features]
 
     # Cluster
-    if cluster and ad.X.shape[0] > 50 and cell_to_clust is None: 
-        cell_to_clust, ad_clust = _cluster(ad, ad_raw, res, units)
-        conf_df, score_df = mod.predict(ad_clust.X, ad_clust.obs.index)
-        # Write the clusters to a log file
-        if log_dir:
-            df = pd.DataFrame(
-                data=[
-                    (cell, clust)
-                    for cell, clust in cell_to_clust.items()
-                ]
+    if clust_key:
+        if clust_key not in ad.obs.columns:
+            sys.exit(
+                """
+                Error. Cluster key name {} was not found in the AnnData 
+                object's '.obs' variable.
+                """.format(clust_key)
             )
-            df = df.set_index(0)
-            clust_f = join(log_dir, 'clustering.tsv')
-            df.to_csv(clust_f, sep='\t', header=None)
-    elif cluster and cell_to_clust is not None:
-        ad_clust = _combine_by_cluster(cell_to_clust, ad, ad_raw, units)
+
+        ad_clust = _combine_by_cluster(ad)
         # If there's only one cluster, expand dimensions of expression
         # matrix. AnnData shrinks it, so we need to keep it as a Numpy
         # array.
@@ -485,11 +435,9 @@ def _raw_probabilities(
         else:
             expr = ad_clust.X
         conf_df, score_df = mod.predict(expr, ad_clust.obs.index)
-        # TODO this is a bit hacky, but we want the clusters to be
-        # strings rather than ints
         cell_to_clust = {
             cell: str(clust)
-            for cell, clust in cell_to_clust.items()
+            for cell, clust in zip(ad.obs.index, ad.obs[clust_key])
         }
     else:
         cell_to_clust = None
@@ -497,14 +445,13 @@ def _raw_probabilities(
     return conf_df, cell_to_clust
 
 
-def _aggregate_expression(X, units):
+def _aggregate_expression(X):
     """
-    Given a matrix of counts where rows correspond to cells
+    Given a matrix of log(TPM+1) where rows correspond to cells
     and columns correspond to genes, aggregate the counts
     to form a psuedo-bulk expression profile.
     """
-    if units == LOG1_CPM_UNITS or units == LOG1_TPM_UNITS:
-        X = (np.exp(X)-1) / 1e6
+    X = (np.exp(X)-1) / 1e6
     x_clust = np.sum(X, axis=0)
     sum_x_clust = float(sum(x_clust))
     x_clust = np.array([x/sum_x_clust for x in x_clust])
@@ -513,21 +460,17 @@ def _aggregate_expression(X, units):
     return x_clust
 
 
-def _combine_by_cluster(cell_to_clust, ad, ad_raw, units):
-    df = pd.DataFrame(
-        data=[
-            (cell, clust)
-            for cell, clust in cell_to_clust.items()
-        ],
-        columns = ['cell', 'cluster']
-    )
-    df = df.set_index('cell')
+def _combine_by_cluster(ad, clust_key='leiden'):
+    """
+    Given a new AnnData object, we want to create a new object
+    where each element isn't a cell, but rather is a cluster.
+    """
     clusters = []
     X_mean_clust = []
-    for clust in sorted(set(cell_to_clust.values())):
-        cells = df.loc[df['cluster'] == clust].index
-        X_clust = ad_raw[cells,:].X
-        x_clust = _aggregate_expression(X_clust, units)
+    for clust in sorted(set(ad.obs[clust_key])):
+        cells = ad.obs.loc[ad.obs[clust_key] == clust].index
+        X_clust = ad[cells,:].X
+        x_clust = _aggregate_expression(X_clust)
         X_mean_clust.append(x_clust)
         clusters.append(str(clust))
     X_mean_clust = np.array(X_mean_clust)
@@ -540,44 +483,6 @@ def _combine_by_cluster(cell_to_clust, ad, ad_raw, units):
         )
     )
     return ad_mean_clust
-
-
-def _cluster(ad, ad_raw, res, units):
-    print('Clustering cells...')
-    sc.pp.pca(ad, )
-    sc.pp.neighbors(ad)
-    ad_clust = sc.tl.leiden(ad, resolution=res, copy=True)
-    print('done.')
-
-    clusters = []
-    X_mean_clust = []
-    cell_to_clust = {}
-    for clust in sorted(set(ad_clust.obs['leiden'])):    
-        cells = ad.obs.loc[ad_clust.obs['leiden'] == clust].index
-        cell_to_clust.update({
-            cell : clust
-            for cell in cells
-        })
-        print('{} cells in cluster {}.'.format(
-            len(cells), 
-            clust
-        ))
-        
-        # Aggregate cluster
-        X_clust = ad_raw[cells,:].X
-        x_clust = _aggregate_expression(X_clust, units)
-        X_mean_clust.append(x_clust) 
-        clusters.append(clust)
-    X_mean_clust = np.array(X_mean_clust)
-    ad_mean_clust = AnnData(
-        X=X_mean_clust,
-        var=ad.var,
-        obs=pd.DataFrame(
-            data=clusters,
-            index=clusters
-        )
-    )
-    return cell_to_clust, ad_mean_clust
 
 
 def _retrieve_empirical_thresholds(ad, algo, rsrc_loc):

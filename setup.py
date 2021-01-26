@@ -12,7 +12,6 @@ install_requires = [
     "dill>=0.3.1.1",
     "h5py>=2.10.0",
     "anndata>=0.7.1",
-    "scanpy>=1.5.1",
     "leidenalg>=0.7.0"
 ]
 
@@ -40,6 +39,11 @@ setup(
     include_package_data=True,
     zip_safe=True,
     url="https://github.com/deweylab/CellO",
+    entry_points={
+        'console_scripts': [
+            'cello_predict = cello.cello_predict:main'
+        ]
+    },
     keywords=[
         "scRNA-seq",
         "cell-type",

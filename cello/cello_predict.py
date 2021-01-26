@@ -8,8 +8,27 @@ from optparse import OptionParser
 import os
 from os.path import join
 import pandas as pd
+from anndata import AnnData
 import dill
 import subprocess
+import sys
+from . import cello
+from . import load_expression_matrix
+try:
+    import scanpy as sc
+except ImportError:
+    sys.exit("The 'cello_predict' command line tool requires that scanpy package be installed. To install scanpy, run 'pip install scanpy'.")
+
+# Units keywords
+COUNTS_UNITS = 'COUNTS'
+CPM_UNITS = 'CPM'
+LOG1_CPM_UNITS = 'LOG1_CPM'
+TPM_UNITS = 'TPM'
+LOG1_TPM_UNITS = 'LOG1_TPM'
+
+# Assay keywords
+FULL_LENGTH_ASSAY = 'FULL_LENGTH'
+THREE_PRIMED_ASSAY = '3_PRIME'
 
 def main():
     usage = "%prog [options] input_file" 
@@ -91,18 +110,13 @@ def main():
     units = options.units
     assay = options.assay
 
-    # Load CellO after parsing arguments since CellO takes a while
-    # to load the ontologies
-    import cello
-    from cello import load_expression_matrix
-
     # One last argument to parse that relies on the Cell Ontology itself
     remove_anatomical_subterms = None
     if options.remove_anatomical:
         remove_anatomical_subterms = options.remove_anatomical.split(',')
         for term in remove_anatomical_subterms:
             try:
-                assert term in CellO.CELL_ONTOLOGY.id_to_term
+                assert term in cello.CELL_ONTOLOGY.id_to_term
             except AssertionError:
                 print()
                 print('Error. For argument --remove_anatomical (-l), the term "{}" was not found in the Uberon Ontology.'.format(term))
@@ -149,14 +163,14 @@ def main():
         print("Please train a classifier on this input gene set by either using the cello_train_model.py program or by running cello_classify with the '-t' flag.")
         exit()        
 
-    results_df, finalized_binary_results_df, ms_results_df = cello.predict(
+    results_df, finalized_binary_results_df, ms_results_df = run_cello(
         ad,
         units,
         model,
-        assay='assay',
+        assay=assay,
         algo=algo,
         cluster=True,
-        cell_to_cluster=cell_to_cluster,
+        cell_to_clust=cell_to_cluster,
         log_dir=log_dir,
         res=1.0,
         remove_anatomical_subterms=remove_anatomical_subterms
@@ -189,6 +203,63 @@ def main():
     out_f = '{}.most_specific.tsv'.format(out_pref)
     print("Writing most-specific cell types to {}...".format(out_f))
     ms_results_df.to_csv(out_f, sep='\t')
+
+
+def run_cello(
+        ad,
+        units,
+        mod,
+        assay='3_PRIME',
+        algo='IR',
+        cluster=True,
+        cell_to_clust=None,
+        log_dir=None,
+        res=1.0,
+        remove_anatomical_subterms=None
+    ):
+    # Get units into log(TPM+1)
+    if assay == FULL_LENGTH_ASSAY:
+        if units in set([COUNTS_UNITS, CPM_UNITS, LOG1_CPM_UNITS]):
+            print('Error. The input units were specified as {}'.format(units),
+                'but the assay was specified as {}.'.format(assay),
+                'To run classification, please input expression matrix in ',
+                'units of either LOG1_TPM or log(TPM+1) for this assay type.')
+            exit()
+    if units == COUNTS_UNITS:
+        print('Normalizing counts...')
+        sc.pp.normalize_total(ad, target_sum=1e6)
+        sc.pp.log1p(ad)
+        print('done.')
+    elif units in set([CPM_UNITS, TPM_UNITS]):
+        sc.pp.log1p(ad)
+
+    if cluster and ad.X.shape[0] > 50 and cell_to_clust is None:
+        # Run clustering
+        sc.pp.pca(ad)
+        sc.pp.neighbors(ad)
+        sc.tl.leiden(ad, resolution=res)
+        clust_key = 'leiden'
+    elif cluster and cell_to_clust is not None:
+        # Clusters are already provided
+        ad.obs['cluster'] = [
+            cell_to_clust[cell]
+            for cell in ad.obs.index
+        ]
+        clust_key = 'cluster'
+    else:
+        # Do not run clustering
+        clust_key = None
+
+    results_df, finalized_binary_results_df, ms_results_df = cello.predict(
+        ad,
+        mod,
+        algo=algo,
+        clust_key=clust_key,
+        log_dir=log_dir,
+        remove_anatomical_subterms=remove_anatomical_subterms
+    )
+
+    return results_df, finalized_binary_results_df, ms_results_df
 
 if __name__ == '__main__':
     main()
