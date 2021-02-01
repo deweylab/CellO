@@ -156,7 +156,6 @@ class CascadedDiscriminativeClassifiers(object):
         # Run all of the classifiers
         label_to_cond_log_probs = {}
         for label in self.label_graph.get_all_nodes():
-            print('Running conditional-classifier for label {}'.format(label))
             if label in self.label_to_classifier:
                 classifier = self.label_to_classifier[label]
                 pos_indices = [
@@ -181,7 +180,6 @@ class CascadedDiscriminativeClassifiers(object):
         # probabilities from that label up to the root of the DAG
         label_to_marginals = {}
         for label, log_probs in label_to_cond_log_probs.items():
-            print('Aggregating classifier outputs for label {}'.format(label))
             products = np.zeros(len(X))
             anc_labels = set(self.label_graph.ancestor_nodes(label)) - set([label])
             for anc_label in anc_labels:
