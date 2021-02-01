@@ -7,27 +7,11 @@ CellO (Cell Ontology-based classification) is a Python package for performing ce
 For more details, see the paper:
 [Bernstein, M.N., Ma, J., Gleicher, M., Dewey, C.N. (2020). CellO: Comprehensive and hierarchical cell type classification of human cellswith the Cell Ontology. *iScience*, 24(1), 101913.](https://www.sciencedirect.com/science/article/pii/S258900422031110X) 
 
-## Dependencies
+## Installation
 
-The Python package dependencies are described in ``requirements.txt``. These dependencies can be installed within a Python virtual environment in one fell swoop with the following commands:
+To install CellO using Pip, run the following command:
 
-```
-python3 -m venv cello_env 
-source cello_env/bin/activate
-pip install -r requirements.txt  
-``` 
-
-## Setup 
-
-CellO requires some resources to run out-of-the-box. These resources can be downloaded with the following command:
-
-``bash download_resources.sh``
-
-Next, we set the PYTHONPATH to point to all packages in this repository:
-
-``export PYTHONPATH=$(pwd):$PYTHONPATH``
-
-## Running CellO
+`pip install cello`
 
 ### Overview
 
@@ -48,7 +32,7 @@ Given an output-prefix provided to CellO (this can include the path to the outpu
 Usage:
 
 ```
-python cello_predict.py [options] input_file
+cello_predict [options] input_file
 
 Options:
   -h, --help            show this help message and exit
@@ -112,11 +96,11 @@ Notably, the input expression data's genes must match the genes expected by the 
 
 To provide an example, here is how you would run CellO on a toy dataset stored in ``example_input/Zheng_PBMC_10x``. This dataset is a set of 1,000 cells subsampled from the [Zheng et al. (2017)](https://www.nature.com/articles/ncomms14049) dataset.  To run CellO on this dataset, run this command:
 
-``python cello_predict.py -d 10x -u COUNTS -s 3_PRIME example_input/Zheng_PBMC_10x -o test``
+``cello_predict -d 10x -u COUNTS -s 3_PRIME example_input/Zheng_PBMC_10x -o test``
 
 Note that ``-o test`` specifies the all output files will have the prefix "test". The ``-d`` specifies the input format, ``-u`` specifies the units of the expression matrix, and ``-s`` specifies the assay-type.  For a full list of available formats, units, assay-types, run:
 
-``python cello_predict.py -h``
+``cello_predict -h``
 
 
 ### Running CellO with a gene set that is incompatible with a pre-trained model
@@ -157,7 +141,7 @@ Note that the above command assumes that the assay is a full-length assay (meani
 
 ## Trouble-shooting
 
-If upon running the command, `pip install -r requirements.txt`, and you receive an error installing Cython, that looks like:
+If upon running `pip install cello` you receive an error installing Cython, that looks like:
 
 ```
 ERROR: Command errored out with exit status 1:
