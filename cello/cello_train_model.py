@@ -12,6 +12,9 @@ from optparse import OptionParser
 import dill
 import os
 
+from . import load_expression_matrix
+import cello
+
 def main():
     usage = "usage: %prog <expression_matrix_file>"
     parser = OptionParser(usage)
@@ -24,11 +27,6 @@ def main():
     parser.add_option("-f", "--resource_location", help="Location of resources")
     parser.add_option("-o", "--output_file", help="File in which to write model")
     (options, args) = parser.parse_args()
-
-    # Load CellO after parsing arguments since CellO takes a while
-    # to load the ontologies
-    from cello import load_expression_matrix
-    import cello
 
     data_loc = args[0]
     data_type = options.data_type

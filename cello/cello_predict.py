@@ -104,7 +104,7 @@ def main():
     try:
         assert options.units
     except:
-        print("Please specify units using the '-u' ('--units') option.")
+        print("Error. Please specify units using the '-u' ('--units') option.")
         print("For more details, run with '-h' ('--help') option.")
         return
     units = options.units
