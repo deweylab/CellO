@@ -7,13 +7,15 @@ Authors: Matthew Bernstein <mbernstein@morgridge.org>
 
 from collections import defaultdict
 import os
-from os.path import dirname, join, realpath
+from os.path import dirname, join, realpath, isdir
 import subprocess
 from optparse import OptionParser
 import math
 import json
 import numpy as np
 import pandas as pd
+import sys
+from shutil import which
 
 from . import download_kallisto_reference as dkr 
 
@@ -38,10 +40,22 @@ def main():
     parser.add_option("-o", "--out", help="Output file")
     (options, args) = parser.parse_args()
 
+    if len(args) != 2:
+        sys.exit("Error. cello_quantify_sample requires 2 arguments, but received {}. For more details, run with '-h' ('--help') option.".format(len(args)))
+
     fastq_fs = args[0].split(',')
     tmp = args[1]
     is_paired = options.is_paired
     out_f = options.out
+
+    if which('kallisto') is None:
+        sys.exit(
+            """
+            Error. Could not find command, 'kallisto'. Please make sure that 
+            kallisto is installed and available via the 'PATH' variable. For 
+            details, see https://pachterlab.github.io/kallisto/.
+            """
+        )
 
     if options.reference_location is None:
         kallisto_ref = os.getcwd()
