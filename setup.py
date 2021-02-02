@@ -7,12 +7,11 @@ install_requires = [
     "quadprog>=0.1.6",
     "numpy>=1.17.1",
     "scikit-learn>=0.22.2.post1",
-    "scipy>=1.3.1",
+    "scipy==1.3.1",
     "pandas>=0.23.4",
     "dill>=0.3.1.1",
     "h5py>=2.10.0",
-    "anndata>=0.7.1",
-    "leidenalg>=0.7.0"
+    "anndata>=0.7.1"
 ]
 
 if sys.version_info[:2] < (3, 5):
