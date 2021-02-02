@@ -354,13 +354,14 @@ def _retrieve_pretrained_model(ad, algo, rsrc_loc):
 def _download_resources(rsrc_loc):
     if not os.path.isdir(join(rsrc_loc, "resources")):
         msg = """
-        Could not find CellO resource file at path '{}'. 
-        Will download resources to current directory.
+        Could not find the CellO resources directory called
+        'resources' in '{}'. Will download resources to current 
+        directory.
         """.format(rsrc_loc)
         print(msg)
         download_resources.download(rsrc_loc)
     else:
-        print("Found CellO resources at '{}'.".format(rsrc_loc))
+        print("Found CellO resources at '{}'.".format(join(rsrc_loc, 'resources')))
 
 
 def retreive_pretrained_model_from_local(ad, model_dir):

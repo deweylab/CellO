@@ -1,3 +1,11 @@
+"""
+Download CellO's resources files. These files include CellO's pre-trained
+models, gene ID-to-symbol mappings, and training sets for training CellO's
+models on new gene sets.
+
+Authors: Matthew Bernstein <mbernstein@morgridge.org>
+"""
+
 import subprocess
 from os.path import join
 

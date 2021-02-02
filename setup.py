@@ -41,7 +41,9 @@ setup(
     url="https://github.com/deweylab/CellO",
     entry_points={
         'console_scripts': [
-            'cello_predict = cello.cello_predict:main'
+            'cello_predict = cello.cello_predict:main',
+            'cello_train_model = cello.cello_train_model:main',
+            'cello_quantify_sample = cello.cello_quantify_sample:main'
         ]
     },
     keywords=[
