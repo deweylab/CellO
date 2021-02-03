@@ -11,7 +11,8 @@ install_requires = [
     "pandas>=0.23.4",
     "dill>=0.3.1.1",
     "h5py>=2.10.0",
-    "anndata>=0.7.1"
+    "anndata>=0.7.1",
+    "pygraphviz"
 ]
 
 if sys.version_info[:2] < (3, 5):
