@@ -99,6 +99,40 @@ class DirectedAcyclicGraph:
         loner_nodes = set(nodes) - have_relations
         return most_specific_nodes | loner_nodes
 
+
+    def most_general_nodes(self, nodes):
+        most_general_nodes = set()
+        # Map terms to superterms
+        node_to_subnodes = {}
+        for node in nodes:
+            node_to_subnodes[node] = self.descendent_nodes(node)
+
+        # Create "more-specific-than" tree
+
+        # The compliment of this set are the nodes that 
+        # do not have a descendent in the given  set of 
+        # nodes
+        have_relations = set()
+        more_specific_than = defaultdict(lambda: set())
+        for node_a in node_to_subnodes.keys():
+            for node_b, b_subnodes in node_to_subnodes.items():
+                if node_a == node_b:
+                    continue
+                if node_a in b_subnodes:
+                    more_specific_than[node_a].add(node_b)
+                    have_relations.update([node_a, node_b])
+        more_specific_than = dict(more_specific_than)
+
+        # Collect leaves of the tree
+        for sups in more_specific_than.values():
+            for s in sups:
+                if not s in more_specific_than.keys():
+                    most_general_nodes.add(s)
+
+        loner_nodes = set(nodes) - have_relations
+        return most_general_nodes | loner_nodes
+
+
     def _downstream_nodes(self, node, orig_to_dests):
         visited = set([node])
         q = deque([node])
@@ -216,7 +250,34 @@ def moralize(graph):
         for target in targets:
             undir_edges.add((source, target))
     return UndirectedGraph(edges)        
-        
+    
+
+def subgraph_spanning_nodes(
+        graph,
+        span_nodes
+    ):
+    """
+    Builds a subgraph of a graph spanning a set of nodes.
+    """
+    # Get most general nodes
+    most_general_nodes = graph.most_general_nodes(span_nodes)
+
+    q = deque(most_general_nodes)
+    subgraph_source_to_targets = defaultdict(lambda: set())
+    while len(q) > 0:
+        source = q.popleft()
+        subgraph_source_to_targets[source] = set()
+        for target in graph.source_to_targets[source]:
+            target_descendants = graph._downstream_nodes(
+                target,
+                graph.source_to_targets
+            )
+            # There exists a descendant of the target represented in the samples
+            if len(target_descendants.intersection(span_nodes)) > 0:
+                subgraph_source_to_targets[source].add(target)
+                q.append(target)
+    return DirectedAcyclicGraph(subgraph_source_to_targets)
+
 
 if __name__ == "__main__":
     main()
