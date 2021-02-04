@@ -36,8 +36,19 @@ def probabilities_on_graph(cell, results_df, rsrc_loc, root_label=None, p_thresh
     }
     if is_term_ids:
         label_to_name = {
-            label: ou.get_term_name(label)
-            for label in label_to_prob
+            label: '{}\n{:.2f}'.format(
+                ou.get_term_name(label), 
+                prob
+            )
+            for label, prob in label_to_prob.items()
+        }
+    else:
+        label_to_name = {
+            label: '{}\n{:.2f}'.format(
+                label,
+                prob
+            )
+            for label, prob in label_to_prob.items()
         }
 
     g = _render_graph(
