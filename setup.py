@@ -12,11 +12,12 @@ install_requires = [
     "dill>=0.3.1.1",
     "h5py>=2.10.0",
     "anndata>=0.7.1",
+    "matplotlib",
     "pygraphviz"
 ]
 
-if sys.version_info[:2] < (3, 5):
-    raise RuntimeError("Python version >=3.5 required.")
+if sys.version_info[:2] < (3, 6):
+    raise RuntimeError("Python version >=3.6 required.")
 
 with open("README.md", "r", encoding="utf-8") as fh:
     readme = fh.read()
