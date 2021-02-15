@@ -1,24 +1,66 @@
+"""
+Create plots for viewing CellO's output.
+
+Author: Matthew Bernstein mbernstein@morgridge.org 
+"""
+
 import pygraphviz
-#import networkx as nx
-#from networkx.drawing.nx_agraph import graphviz_layout
 from pygraphviz import AGraph
 import matplotlib as mpl
-from IPython.display import Image
 
 from . import cello
 from .graph_lib import graph
 from . import ontology_utils as ou
 
-def probabilities_on_graph(cell, results_df, rsrc_loc, root_label=None, p_thresh=0.0):
-    label_graph = cello._retrieve_label_graph(rsrc_loc) # This should move to a utility function
+
+def probabilities_on_graph(
+        cell_or_clust,
+        results_df, 
+        rsrc_loc,
+        clust=True,
+        root_label=None, 
+        p_thresh=0.0
+    ):
+    """
+    cell_or_clust
+        The name of a cell or cluster for which to plot the probabilities of it 
+        being each cell type in the Cell Ontology.
+    results_df
+        A DataFrame storing CellO's output probabilities in which rows correspond 
+        to cells and columns to cell types.
+    rsrc_loc
+        The location of the CellO resources directory.
+    clust: default True
+        If True, `cell_or_clust` is the ID of a cluster.
+        If False, `cell_or_clust` is the ID of a cell.
+    root_label: default None
+        Cell type name or ID. Only plot the subgraph of the Cell Ontology rooted 
+        at this cell type.
+    p_thresh: default 0.0
+        A probabilitiy value. Only plot the subgraph of the Cell Ontology spanning
+        cell types for which the output probability exceeds the given probability.
+    """
+
+    # TODO this should move to a utility function
+    label_graph = cello._retrieve_label_graph(rsrc_loc) 
+
+    # Determine if columns are ontology term ID's or term names
     is_term_ids = 'CL:' in results_df.columns[0]
 
+    # TODO
+    cell = cell_or_clust
+
+    # Create subgraph spanning the terms
     span_labels = set([
         label
         for label, prob in zip(results_df.columns, results_df.loc[cell])
         if prob > p_thresh
     ])
     if root_label:
+        if not is_term_ids:
+            root_id = ou.get_term_id(root_label)
+        else:
+            root_id = root_label
         span_labels &= label_graph._downstream_nodes(
             root_label, 
             label_graph.source_to_targets
@@ -27,7 +69,6 @@ def probabilities_on_graph(cell, results_df, rsrc_loc, root_label=None, p_thresh
         label_graph,
         span_labels
     )
-    
 
     label_to_prob = {
         label: prob
@@ -59,13 +100,13 @@ def probabilities_on_graph(cell, results_df, rsrc_loc, root_label=None, p_thresh
     )
     return g
 
+
 def _render_graph(
         source_to_targets,
         node_to_label,
         metric_name,
         node_to_value
     ):
-
     g = AGraph(directed=True)
 
     # Gather all nodes in graph
