@@ -186,6 +186,8 @@ def cello(
     ]
     adata.obs = adata.obs.drop(drop_cols, axis=1)
 
+    finalized_binary_results_df = finalized_binary_results_df.astype(bool)
+
     adata.obs = adata.obs.join(results_df).join(finalized_binary_results_df)
     adata.uns['CellO_column_mappings'] = column_to_term_id
     if term_ids:
