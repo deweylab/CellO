@@ -10,6 +10,14 @@ Email: mbernstein@morgridge.org
 
 from anndata import AnnData
 import dill
+from collections import defaultdict
+import pandas as pd
+import io
+from matplotlib import pyplot as plt
+import matplotlib.image as mpimg
+
+from .plot_annotations import probabilities_on_graph
+from . import cello as ce
 
 def cello(
         adata: AnnData, 
@@ -197,4 +205,56 @@ def cello(
         ]
     else:
         adata.obs['Most specific cell type'] = ms_results_df['most_specific_cell_type']
-    
+   
+
+
+def cello_probs(adata, cell_or_clust, rsrc_loc, p_thresh, width=10, height=10, clust_key=None):
+    results_df = adata.obs[[col for col in adata.uns['CellO_column_mappings']]]
+    results_df.columns = [
+        adata.uns['CellO_column_mappings'][c] for c in results_df.columns
+    ]
+
+    # Plot based on cluster ID 
+    if clust_key:
+
+        print("HERE!")
+        print(clust_key in adata.obs.columns)
+        print(cell_or_clust in set(adata.obs[clust_key]))
+
+        try:
+            assert cell_or_clust in set(adata.obs[clust_key])
+        except AssertionError:
+            raise KeyError(f"Error plotting probabilities on graph. Cluster {clust_key} not found in `adata.obs` columns.")
+
+        # Take subset of results dataframe for each column
+        clust_to_indices = defaultdict(lambda: [])
+        for index, clust in zip(adata.obs.index, adata.obs[clust_key]):
+            clust_to_indices[clust].append(index)
+
+        clusts = sorted(clust_to_indices.keys())
+        results_df = pd.DataFrame(
+            [
+                results_df.loc[clust_to_indices[clust][0]]
+                for clust in clusts
+            ],
+            index=clusts,
+            columns=results_df.columns
+        )
+
+    g = probabilities_on_graph(
+        cell_or_clust,
+        results_df,
+        rsrc_loc,
+        p_thresh=p_thresh
+    )
+
+    f = io.BytesIO(g.draw(format='png', prog='dot'))
+
+    fig, ax = plt.subplots(figsize=(width, height))
+    im = mpimg.imread(f)
+    plt.xticks([])
+    plt.yticks([])
+    plt.imshow(im)
+
+
+
