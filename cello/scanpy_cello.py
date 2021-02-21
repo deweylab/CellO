@@ -208,7 +208,7 @@ def cello(
    
 
 
-def cello_probs(adata, cell_or_clust, rsrc_loc, p_thresh, width=10, height=10, clust_key=None):
+def cello_probs(adata, cell_or_clust, rsrc_loc, p_thresh, width=10, height=10, clust_key=None, dpi=300):
     results_df = adata.obs[[col for col in adata.uns['CellO_column_mappings']]]
     results_df.columns = [
         adata.uns['CellO_column_mappings'][c] for c in results_df.columns
@@ -216,11 +216,6 @@ def cello_probs(adata, cell_or_clust, rsrc_loc, p_thresh, width=10, height=10, c
 
     # Plot based on cluster ID 
     if clust_key:
-
-        print("HERE!")
-        print(clust_key in adata.obs.columns)
-        print(cell_or_clust in set(adata.obs[clust_key]))
-
         try:
             assert cell_or_clust in set(adata.obs[clust_key])
         except AssertionError:
@@ -248,13 +243,13 @@ def cello_probs(adata, cell_or_clust, rsrc_loc, p_thresh, width=10, height=10, c
         p_thresh=p_thresh
     )
 
-    f = io.BytesIO(g.draw(format='png', prog='dot'))
+    f = io.BytesIO(g.draw(format='png', prog='dot', args=f'-Gdpi={dpi}'))
 
     fig, ax = plt.subplots(figsize=(width, height))
     im = mpimg.imread(f)
     plt.xticks([])
     plt.yticks([])
     plt.imshow(im)
-
+    return fig, ax
 
 
