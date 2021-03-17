@@ -17,7 +17,7 @@ To install CellO using Pip, run the following command:
 
 ## Running CellO from within Python
 
-CellO's API interfaces with the Scanpy Python library and can integrate into a more general single-cell analysis pipeline. For an example on how to use CellO with Scanpy, please see the [tutorial]().
+CellO's API interfaces with the Scanpy Python library and can integrate into a more general single-cell analysis pipeline. For an example on how to use CellO with Scanpy, please see the [tutorial](https://github.com/deweylab/CellO/blob/package_for_pypi/tutorial/cello_tutorial.ipynb).
 
 This tutorial can also be executed from a Google Colab notebook in the cloud: [https://colab.research.google.com/drive/1lNvzrP4bFDkEe1XXKLnO8PZ83StuvyWW?usp=sharing](https://colab.research.google.com/drive/1lNvzrP4bFDkEe1XXKLnO8PZ83StuvyWW?usp=sharing).
 
