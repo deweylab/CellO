@@ -13,7 +13,7 @@ There are two modes in which one can use CellO: within Python in conjunction wit
 
 To install CellO using Pip, run the following command:
 
-`pip install cello`
+`pip install cello-classify`
 
 ## Running CellO from within Python
 
