@@ -4,8 +4,10 @@
 
 CellO (Cell Ontology-based classification) is a Python package for performing cell type classification of human RNA-seq data. CellO makes hierarchical predictions against the [Cell Ontology](http://www.obofoundry.org/ontology/cl.html). These classifiers were trained on nearly all of the human primary cell, bulk RNA-seq data in the [Sequence Read Archive](https://www.ncbi.nlm.nih.gov/sra).
 
-For more details, see the paper:
+For more details regarding the underlying method, see the paper:
 [Bernstein, M.N., Ma, J., Gleicher, M., Dewey, C.N. (2020). CellO: Comprehensive and hierarchical cell type classification of human cellswith the Cell Ontology. *iScience*, 24(1), 101913.](https://www.sciencedirect.com/science/article/pii/S258900422031110X) 
+
+There are two modes in which one can use CellO: within Python in conjunction with [Scanpy](), or with the command line. 
 
 ## Installation
 
@@ -13,17 +15,13 @@ To install CellO using Pip, run the following command:
 
 `pip install cello`
 
-### Overview
-
-CellO uses a supervised machine learning classifier to classify the cell types within a dataset. There are two modes in which one can use CellO: within Python in conjunction with [Scanpy](), or with the command lines. Please refer to sections below for more information.
-
-### Using CellO from within Python
+## Running CellO from within Python
 
 CellO's API interfaces with the Scanpy Python library and can integrate into a more general single-cell analysis pipeline. For an example on how to use CellO with Scanpy, please see the [tutorial]().
 
 This tutorial can also be executed from a Google Colab notebook in the cloud: [https://colab.research.google.com/drive/1lNvzrP4bFDkEe1XXKLnO8PZ83StuvyWW?usp=sharing](https://colab.research.google.com/drive/1lNvzrP4bFDkEe1XXKLnO8PZ83StuvyWW?usp=sharing).
 
-### Using CellO from the command line
+## Running CellO from the command line
 
 CellO takes as input a gene expression matrix. CellO accepts data in multiple formats:
 * TSV: tab-separated value 
@@ -111,7 +109,7 @@ Note that ``-o test`` specifies the all output files will have the prefix "test"
 ``cello_predict -h``
 
 
-#### Running CellO with a gene set that is incompatible with a pre-trained model
+### Running CellO with a gene set that is incompatible with a pre-trained model
 
 If the genes in the input file do not match the genes on which the model was trained, CellO can be told to train a classifier with only those genes included in the given input dataset by using the ``-t`` flag.  The trained model will be saved to a file named ``<output_prefix>.model.dill`` where ``<output_prefix>`` is the output-prefix argument provided via the ``-o`` option.  Training CellO usually takes under an hour. 
 
@@ -131,7 +129,7 @@ Note that ``-m test.model.dill`` tells CellO to use the model computed in the pr
 
 ## Quantifying reads with Kallisto to match CellO's pre-trained models
 
-We provide a script for quantifying raw reads with [Kallisto](https://pachterlab.github.io/kallisto/). Note that to run this script, Kallisto must be installed and available in your ``PATH`` environment variable.  This script will output an expression profile that includes all of the genes that CellO is expecting and thus, expression profiles created with this script are automatically compatible with CellO.
+We provide a commandline tool for quantifying raw reads with [Kallisto](https://pachterlab.github.io/kallisto/). Note that to run this script, Kallisto must be installed and available in your ``PATH`` environment variable.  This script will output an expression profile that includes all of the genes that CellO is expecting and thus, expression profiles created with this script are automatically compatible with CellO.
 
 This script requires a preprocessed kallisto reference.  To download the pre-built Kallisto reference that is compatible with CellO, run the command:
 
