@@ -15,7 +15,17 @@ To install CellO using Pip, run the following command:
 
 ### Overview
 
-CellO uses a supervised machine learning classifier to classify the cell types within a dataset. CellO takes as input a gene expression matrix. CellO accepts data in multiple formats:
+CellO uses a supervised machine learning classifier to classify the cell types within a dataset. There are two modes in which one can use CellO: within Python in conjunction with [Scanpy](), or with the command lines. Please refer to sections below for more information.
+
+### Using CellO from within Python
+
+CellO's API interfaces with the Scanpy Python library and can integrate into a more general single-cell analysis pipeline. For an example on how to use CellO with Scanpy, please see the [tutorial]().
+
+This tutorial can also be executed from a Google Colab notebook in the cloud: [https://colab.research.google.com/drive/1lNvzrP4bFDkEe1XXKLnO8PZ83StuvyWW?usp=sharing](https://colab.research.google.com/drive/1lNvzrP4bFDkEe1XXKLnO8PZ83StuvyWW?usp=sharing).
+
+### Using CellO from the command line
+
+CellO takes as input a gene expression matrix. CellO accepts data in multiple formats:
 * TSV: tab-separated value 
 * CSV: comma-separated value
 * HDF5: a database in HDF5 format that includes three datasets: a dataset storing the expression matrix, a dataset storing the list of gene-names (i.e. rows), and a gene-set storing the list of cell ID's (i.e. columns)
@@ -90,8 +100,6 @@ Options:
                         path.
 ```
 
-### Running CellO with a pre-trained model
-
 Notably, the input expression data's genes must match the genes expected by the trained classifier.  If the genes match, then CellO will use a pre-trained classifier to classify the expression profiles (i.e. cells) in the input dataset. 
 
 To provide an example, here is how you would run CellO on a toy dataset stored in ``example_input/Zheng_PBMC_10x``. This dataset is a set of 1,000 cells subsampled from the [Zheng et al. (2017)](https://www.nature.com/articles/ncomms14049) dataset.  To run CellO on this dataset, run this command:
@@ -103,7 +111,7 @@ Note that ``-o test`` specifies the all output files will have the prefix "test"
 ``cello_predict -h``
 
 
-### Running CellO with a gene set that is incompatible with a pre-trained model
+#### Running CellO with a gene set that is incompatible with a pre-trained model
 
 If the genes in the input file do not match the genes on which the model was trained, CellO can be told to train a classifier with only those genes included in the given input dataset by using the ``-t`` flag.  The trained model will be saved to a file named ``<output_prefix>.model.dill`` where ``<output_prefix>`` is the output-prefix argument provided via the ``-o`` option.  Training CellO usually takes under an hour. 
 
