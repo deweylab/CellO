@@ -19,11 +19,11 @@ install_requires = [
 if sys.version_info[:2] < (3, 6):
     raise RuntimeError("Python version >=3.6 required.")
 
-with open("README.md", "r", encoding="utf-8") as fh:
+with open("README.rst", "r", encoding="utf-8") as fh:
     readme = fh.read()
 
 setup(
-    name="cello",
+    name="cello_classify",
     version="2.0.0",
     description="CellO",
     author="Matthew N. Bernstein",
@@ -57,7 +57,6 @@ setup(
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent"
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "Natural Language :: English",
