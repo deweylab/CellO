@@ -1,3 +1,5 @@
+![](https://img.shields.io/pypi/v/cello-classify)  
+
 # CellO: *Cell O*ntology-based classification &nbsp; <img src="https://raw.githubusercontent.com/deweylab/CellO/master/cello.png" alt="alt text" width="70px" height="70px">
 
 ## About
