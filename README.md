@@ -4,8 +4,10 @@
 
 CellO (Cell Ontology-based classification) is a Python package for performing cell type classification of human RNA-seq data. CellO makes hierarchical predictions against the [Cell Ontology](http://www.obofoundry.org/ontology/cl.html). These classifiers were trained on nearly all of the human primary cell, bulk RNA-seq data in the [Sequence Read Archive](https://www.ncbi.nlm.nih.gov/sra).
 
-For more details, see the paper:
+For more details regarding the underlying method, see the paper:
 [Bernstein, M.N., Ma, J., Gleicher, M., Dewey, C.N. (2020). CellO: Comprehensive and hierarchical cell type classification of human cellswith the Cell Ontology. *iScience*, 24(1), 101913.](https://www.sciencedirect.com/science/article/pii/S258900422031110X) 
+
+There are two modes in which one can use CellO: within Python in conjunction with [Scanpy](), or with the command line. 
 
 ## Installation
 
@@ -13,17 +15,13 @@ To install CellO using Pip, run the following command:
 
 `pip install cello`
 
-### Overview
+## Running CellO from within Python
 
-CellO uses a supervised machine learning classifier to classify the cell types within a dataset. There are two modes in which one can use CellO: within Python in conjunction with [Scanpy](), or with the command lines. Please refer to sections below for more information.
-
-### Using CellO from within Python
-
-CellO's API interfaces with the Scanpy Python library and can integrate into a more general single-cell analysis pipeline. For an example on how to use CellO with Scanpy, please see the [tutorial]().
+CellO's API interfaces with the Scanpy Python library and can integrate into a more general single-cell analysis pipeline. For an example on how to use CellO with Scanpy, please see the [tutorial](https://github.com/deweylab/CellO/blob/package_for_pypi/tutorial/cello_tutorial.ipynb).
 
 This tutorial can also be executed from a Google Colab notebook in the cloud: [https://colab.research.google.com/drive/1lNvzrP4bFDkEe1XXKLnO8PZ83StuvyWW?usp=sharing](https://colab.research.google.com/drive/1lNvzrP4bFDkEe1XXKLnO8PZ83StuvyWW?usp=sharing).
 
-### Using CellO from the command line
+## Running CellO from the command line
 
 CellO takes as input a gene expression matrix. CellO accepts data in multiple formats:
 * TSV: tab-separated value 
@@ -111,13 +109,13 @@ Note that ``-o test`` specifies the all output files will have the prefix "test"
 ``cello_predict -h``
 
 
-#### Running CellO with a gene set that is incompatible with a pre-trained model
+### Running CellO with a gene set that is incompatible with a pre-trained model
 
 If the genes in the input file do not match the genes on which the model was trained, CellO can be told to train a classifier with only those genes included in the given input dataset by using the ``-t`` flag.  The trained model will be saved to a file named ``<output_prefix>.model.dill`` where ``<output_prefix>`` is the output-prefix argument provided via the ``-o`` option.  Training CellO usually takes under an hour. 
 
 For example, to train a model and run CellO on the file ``example_input/LX653_tumor.tsv``, run the command:
 
-``python cello_predict.py -u COUNTS -s 3_PRIME -t -o test example_input/LX653_tumor.tsv``
+``cello_predict -u COUNTS -s 3_PRIME -t -o test example_input/LX653_tumor.tsv``
 
 Along with the classification results, this command will output a file ``test.model.dill``.
 
@@ -125,13 +123,13 @@ Along with the classification results, this command will output a file ``test.mo
 
 Training a model on a new gene set needs only to be done once (see previous section). For example, to run CellO on ``example_input/LX653_tumor.tsv`` using a specific model stored in a file, run:
 
-``python cello_predict.py -u COUNTS -s 3_PRIME -m test.model.dill -o test example_input/LX653_tumor.tsv``
+``cello_predict -u COUNTS -s 3_PRIME -m test.model.dill -o test example_input/LX653_tumor.tsv``
 
 Note that ``-m test.model.dill`` tells CellO to use the model computed in the previous example.
 
 ## Quantifying reads with Kallisto to match CellO's pre-trained models
 
-We provide a script for quantifying raw reads with [Kallisto](https://pachterlab.github.io/kallisto/). Note that to run this script, Kallisto must be installed and available in your ``PATH`` environment variable.  This script will output an expression profile that includes all of the genes that CellO is expecting and thus, expression profiles created with this script are automatically compatible with CellO.
+We provide a commandline tool for quantifying raw reads with [Kallisto](https://pachterlab.github.io/kallisto/). Note that to run this script, Kallisto must be installed and available in your ``PATH`` environment variable.  This script will output an expression profile that includes all of the genes that CellO is expecting and thus, expression profiles created with this script are automatically compatible with CellO.
 
 This script requires a preprocessed kallisto reference.  To download the pre-built Kallisto reference that is compatible with CellO, run the command:
 
@@ -139,11 +137,11 @@ This script requires a preprocessed kallisto reference.  To download the pre-bui
 
 This command will download a directory called ``kallisto_reference`` in the current directory. To run Kallisto on a set of FASTQ files, run the command
 
-``python run_kallisto.py <comma_dilimited_fastq_files> <tmp_dir> -o <kallisto_output_file>``
+``cello_quantify_sample <comma_dilimited_fastq_files> <tmp_dir> -o <kallisto_output_file>``
 
 where ``<comma_delimited_fastq_files>`` is a comma-delimited set of FASTQ files containing all of the reads for a single RNA-seq sample and ``<tmp_dir>`` is the location where Kallisto will store it's output files.  The file ``<kallisto_output_file>`` is a tab-separated-value table of the log(TPM+1) values that can be fed directly to CellO.  To run CellO on this output file, run:
 
-``python cell_predict.py -u LOG1_TPM -s FULL_LENGTH <kallisto_output_file> -o <cell_output_prefix>``
+``cell_predict -u LOG1_TPM -s FULL_LENGTH <kallisto_output_file> -o <cell_output_prefix>``
 
 Note that the above command assumes that the assay is a full-length assay (meaning reads can originate from the full-length of the transcript).  If this is a 3-prime assay (reads originate from only the 3'-end of the transcript), the ``-s FULL_LENGTH`` should be replaced with ``-s 3_PRIME`` in the above command.
 
