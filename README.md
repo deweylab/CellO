@@ -115,7 +115,7 @@ If the genes in the input file do not match the genes on which the model was tra
 
 For example, to train a model and run CellO on the file ``example_input/LX653_tumor.tsv``, run the command:
 
-``python cello_predict.py -u COUNTS -s 3_PRIME -t -o test example_input/LX653_tumor.tsv``
+``cello_predict -u COUNTS -s 3_PRIME -t -o test example_input/LX653_tumor.tsv``
 
 Along with the classification results, this command will output a file ``test.model.dill``.
 
@@ -123,7 +123,7 @@ Along with the classification results, this command will output a file ``test.mo
 
 Training a model on a new gene set needs only to be done once (see previous section). For example, to run CellO on ``example_input/LX653_tumor.tsv`` using a specific model stored in a file, run:
 
-``python cello_predict.py -u COUNTS -s 3_PRIME -m test.model.dill -o test example_input/LX653_tumor.tsv``
+``cello_predict -u COUNTS -s 3_PRIME -m test.model.dill -o test example_input/LX653_tumor.tsv``
 
 Note that ``-m test.model.dill`` tells CellO to use the model computed in the previous example.
 
@@ -137,11 +137,11 @@ This script requires a preprocessed kallisto reference.  To download the pre-bui
 
 This command will download a directory called ``kallisto_reference`` in the current directory. To run Kallisto on a set of FASTQ files, run the command
 
-``python run_kallisto.py <comma_dilimited_fastq_files> <tmp_dir> -o <kallisto_output_file>``
+``cello_quantify_sample <comma_dilimited_fastq_files> <tmp_dir> -o <kallisto_output_file>``
 
 where ``<comma_delimited_fastq_files>`` is a comma-delimited set of FASTQ files containing all of the reads for a single RNA-seq sample and ``<tmp_dir>`` is the location where Kallisto will store it's output files.  The file ``<kallisto_output_file>`` is a tab-separated-value table of the log(TPM+1) values that can be fed directly to CellO.  To run CellO on this output file, run:
 
-``python cell_predict.py -u LOG1_TPM -s FULL_LENGTH <kallisto_output_file> -o <cell_output_prefix>``
+``cell_predict -u LOG1_TPM -s FULL_LENGTH <kallisto_output_file> -o <cell_output_prefix>``
 
 Note that the above command assumes that the assay is a full-length assay (meaning reads can originate from the full-length of the transcript).  If this is a 3-prime assay (reads originate from only the 3'-end of the transcript), the ``-s FULL_LENGTH`` should be replaced with ``-s 3_PRIME`` in the above command.
 
