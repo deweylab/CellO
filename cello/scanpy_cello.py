@@ -207,6 +207,40 @@ def cello(
         adata.obs['Most specific cell type'] = ms_results_df['most_specific_cell_type']
    
 
+def normalize_and_cluster(
+        adata: AnnData, 
+        n_pca_components: int = 50, 
+        n_neighbors: int = 15,
+        cluster_res: float = 1.0
+    ):
+    """
+    Normalize and cluster an expression matrix in units of raw UMI counts.
+
+    Parameters
+    ----------
+    adata
+        Annotated data matrix. Expected units are raw UMI counts.
+    n_pca_components (default 50)
+        Number of principal components to use when running PCA. PCA is
+        is used to reduce noise and speed up computation when clustering.
+    n_neighbors (default 15)
+        Number of neighbors to use for computing the nearest-neighbors 
+        graph. Clustering is performed using community detection on this
+        nearest-neighbors graph.
+    cluster_res (default 1.0)
+        Cluster resolution for the Leiden community detection algorithm.
+        A higher resolution produces more fine-grained, smaller clusters.
+    """
+    try:
+        import scanpy as sc
+    except ImportError:
+        sys.exit("The function 'normalize_and_cluster' requires that scanpy package be installed. To install scanpy, run 'pip install scanpy'")
+    sc.pp.normalize_total(adata, target_sum=1e6)
+    sc.pp.log1p(adata)
+    sc.pp.pca(adata, n_comps=n_pca_components)
+    sc.pp.neighbors(adata, n_neighbors=n_neighbors)
+    sc.tl.leiden(adata, resolution=cluster_res)
+
 
 def cello_probs(adata, cell_or_clust, rsrc_loc, p_thresh, width=10, height=10, clust_key=None, dpi=300):
     results_df = adata.obs[[col for col in adata.uns['CellO_column_mappings']]]
@@ -250,6 +284,23 @@ def cello_probs(adata, cell_or_clust, rsrc_loc, p_thresh, width=10, height=10, c
     plt.xticks([])
     plt.yticks([])
     plt.imshow(im)
+    plt.show()
     return fig, ax
+
+
+def write_to_tsv(adata, filename):
+    """
+    Write CellO's output to a TSV file.
+    """
+    keep_cols = [
+        col 
+        for col in adata.obs.columns
+        if '(probability)' in col
+        or '(binary)' in col
+        or 'Most specific cell type' in col
+    ]
+    df = adata.obs[keep_cols]
+    df.to_csv(filename, sep='\t')
+
 
 
