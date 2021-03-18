@@ -1,4 +1,3 @@
-from .cello import CELL_ONTOLOGY
 from .cello import train_model
 from .cello import load_training_set
 from .cello import predict

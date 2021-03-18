@@ -21,6 +21,7 @@ from . import the_ontology
 from . import load_expression_matrix
 from . import load_training_data
 from . import download_resources
+from . import ontology_utils as ou
 from . import models
 from .models import model
 from .graph_lib.graph import DirectedAcyclicGraph
@@ -70,8 +71,6 @@ PREPROCESSORS = ['pca']
 PREPROCESSOR_PARAMS = [{
     "n_components": 3000
 }]
-
-CELL_ONTOLOGY = the_ontology.the_ontology()
 
 QUALIFIER_TERMS = set([
     'CL:2000001',   # peripheral blood mononuclear cell
@@ -243,7 +242,7 @@ def predict(
         print("Filtering predictions for cells found in:\n{}".format(
             "\n".join([
                 "{} ({})".format(
-                    CELL_ONTOLOGY.id_to_term[term].name,
+                    ou.cell_ontology().id_to_term[term].name,
                     term
                 )
                 for term in remove_anatomical_subterms
@@ -569,7 +568,7 @@ def _filter_by_anatomical_entity(
     labels = set(results_df.columns)
     all_subterms = set()
     for term in remove_subterms_of:
-        subterms = CELL_ONTOLOGY.recursive_relationship(
+        subterms = ou.cell_ontology().recursive_relationship(
             term, 
             ['inv_is_a', 'inv_part_of', 'inv_located_in']
         )
@@ -704,7 +703,7 @@ def _select_one_most_specific(
     for exp, select_label in exp_to_select_pred_label.items():
         print('Item {} predicted to be "{} ({})"'.format(
             exp, 
-            CELL_ONTOLOGY.id_to_term[select_label].name, 
+            ou.cell_ontology().id_to_term[select_label].name, 
             select_label
         ))
         all_labels = label_to_ancestors[select_label] 

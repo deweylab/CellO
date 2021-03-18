@@ -17,12 +17,13 @@ from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
 
 from .plot_annotations import probabilities_on_graph
+from . import ontology_utils as ou
 from . import cello as ce
 
 def cello(
         adata: AnnData, 
-        clust_key: str,
-        rsrc_loc: str,
+        clust_key: str = 'leiden',
+        rsrc_loc: str = '.',
         algo: str = 'IR',
         out_prefix: str = None,
         model_file: str = None,
@@ -165,23 +166,23 @@ def cello(
         ]
     else:
         column_to_term_id = {
-            '{} (probability)'.format(ce.CELL_ONTOLOGY.id_to_term[c].name): c
+            '{} (probability)'.format(ou.cell_ontology().id_to_term[c].name): c
             for c in results_df.columns
         }
         results_df.columns = [
             '{} (probability)'.format(
-                ce.CELL_ONTOLOGY.id_to_term[c].name
+                ou.cell_ontology().id_to_term[c].name
             )
             for c in results_df.columns
         ]
         finalized_binary_results_df.columns = [
             '{} (binary)'.format(
-                ce.CELL_ONTOLOGY.id_to_term[c].name
+                ou.cell_ontology().id_to_term[c].name
             )
             for c in finalized_binary_results_df.columns
         ]
         ms_results_df['most_specific_cell_type'] = [
-            ce.CELL_ONTOLOGY.id_to_term[c].name
+            ou.cell_ontology().id_to_term[c].name
             for c in ms_results_df['most_specific_cell_type']
         ]
 
@@ -200,7 +201,7 @@ def cello(
     adata.uns['CellO_column_mappings'] = column_to_term_id
     if term_ids:
         adata.obs['Most specific cell type'] = [
-            ce.CELL_ONTOLOGY.id_to_term[c].name
+            ou.cell_ontology().id_to_term[c].name
             for c in ms_results_df['most_specific_cell_type']
         ]
     else:

@@ -8,4 +8,4 @@ For instructions on installing and running CellO, see the GitHub repository: htt
 
 For more details regarding the underlying method, see the paper:
 
-Bernstein, M.N., Ma, J., Gleicher, M., Dewey, C.N. (2020). CellO: Comprehensive and hierarchical cell type classification of human cellswith the Cell Ontology. iScience, 24(1), 101913. https://www.sciencedirect.com/science/article/pii/S258900422031110X
+Bernstein, M.N., Ma, J., Gleicher, M., Dewey, C.N. (2020). CellO: Comprehensive and hierarchical cell type classification of human cells with the Cell Ontology. iScience, 24(1), 101913. https://doi.org/10.1016/j.isci.2020.101913.

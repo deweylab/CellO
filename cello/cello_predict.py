@@ -13,6 +13,7 @@ import dill
 import subprocess
 import sys
 from . import cello
+from . import ontology_utils as ou
 from . import load_expression_matrix
 try:
     import scanpy as sc
@@ -116,7 +117,7 @@ def main():
         remove_anatomical_subterms = options.remove_anatomical.split(',')
         for term in remove_anatomical_subterms:
             try:
-                assert term in cello.CELL_ONTOLOGY.id_to_term
+                assert term in ou.cell_ontology().id_to_term
             except AssertionError:
                 print()
                 print('Error. For argument --remove_anatomical (-l), the term "{}" was not found in the Uberon Ontology.'.format(term))
@@ -179,15 +180,15 @@ def main():
     # Convert to human-readable ontology terms
     if not options.ontology_term_ids:
         results_df.columns = [
-            cello.CELL_ONTOLOGY.id_to_term[x].name
+            ou.cell_ontology().id_to_term[x].name
             for x in results_df.columns
         ]
         finalized_binary_results_df.columns = [
-            cello.CELL_ONTOLOGY.id_to_term[x].name
+            ou.cell_ontology().id_to_term[x].name
             for x in finalized_binary_results_df.columns
         ]
         ms_results_df['most_specific_cell_type'] = [
-            cello.CELL_ONTOLOGY.id_to_term[x].name
+            ou.cell_ontology().id_to_term[x].name
             for x in ms_results_df['most_specific_cell_type']
         ]
 

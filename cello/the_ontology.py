@@ -123,11 +123,18 @@ def patch_the_ontology(og):
             target_term.relationships[inv_edge_type] = [source_id]
     return og
 
-ONT_NAME_TO_ONT_ID = {"EFO_CL_DOID_UBERON_CVCL":"17"}
-ONT_ID_TO_OG = {x: patch_the_ontology(load_ontology.load(x)[0]) for x in ONT_NAME_TO_ONT_ID.values()}
+#ONT_NAME_TO_ONT_ID = {"EFO_CL_DOID_UBERON_CVCL":"17"}
+
+#ont_id_to_og = None
+#def _ont_id_to_og():
+#    global ont_id_to_og
+#    if ont_id_to_og is None:
+#        ont_id_to_og = {x: patch_the_ontology(load_ontology.load(x)[0]) for x in ONT_NAME_TO_ONT_ID.values()}
+#    return ont_id_to_og
 
 def the_ontology():
-    return ONT_ID_TO_OG['17']
+    return patch_the_ontology(load_ontology.load('17')[0])
+    #return _ont_id_to_og()['17']
 
 def unit_ontology():
     return load_ontology.load(UNIT_OG_ID)[0]
