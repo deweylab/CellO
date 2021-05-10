@@ -225,7 +225,7 @@ def predict(
         print("Error. The genes present in data matrix do not match those expected by the classifier.")
         print("Please train a classifier on this input gene set by either using the cello_train_model.py ")
         print("program or by running cello_classify with the '-t' flag.")
-        exit()
+        sys.exit()
 
 
     # Compute raw classifier probabilities
@@ -828,6 +828,8 @@ def _match_genes(test_genes, all_genes, rsrc_loc, verbose=True, log_dir=None, re
     if log_dir:
         with open(join(log_dir, 'genes_absent_from_training_set.tsv'), 'w') as f:
             f.write('\n'.join(sorted(not_found)))
+        with open(join(log_dir, 'genes_found_in_training_set.tsv'), 'w') as f:
+            f.write('\n'.join(sorted(train_genes)))
     return train_genes, gene_to_indices
 
 
