@@ -820,7 +820,7 @@ def _match_genes(test_genes, all_genes, rsrc_loc, verbose=True, log_dir=None, re
     else:
         raise ValueError("Unable to determine gene collection. Please make sure the input dataset specifies either HUGO gene symbols or Entrez gene ID's.")
     gene_to_indices = dict(gene_to_indices)
-    print('Of {} genes in test set, found {} of {} training set genes in input file.'.format(
+    print('Of {} genes in the input file, {} were found in the training set of {} genes.'.format(
         len(test_genes),
         len(train_ids),
         len(all_genes)
