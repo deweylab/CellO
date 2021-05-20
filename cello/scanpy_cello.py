@@ -129,7 +129,10 @@ def cello(
         mod = ce._retrieve_pretrained_model(adata, algo, rsrc_loc)
         if mod is None:
             mod = ce.train_model(
-                adata, rsrc_loc, algo=algo, log_dir=log_dir
+                adata, 
+                rsrc_loc, 
+                algo=algo, 
+                log_dir=log_dir
             )
             if out_prefix:
                 out_model_f = '{}.model.dill'.format(out_prefix)
@@ -212,7 +215,8 @@ def normalize_and_cluster(
         adata: AnnData, 
         n_pca_components: int = 50, 
         n_neighbors: int = 15,
-        cluster_res: float = 1.0
+        n_top_genes: int = 10000,
+        cluster_res: float = 2.0
     ):
     """
     Normalize and cluster an expression matrix in units of raw UMI counts.
@@ -228,7 +232,10 @@ def normalize_and_cluster(
         Number of neighbors to use for computing the nearest-neighbors 
         graph. Clustering is performed using community detection on this
         nearest-neighbors graph.
-    cluster_res (default 1.0)
+    n_top_genes (default 10000)
+        Number of genes selected for computing the nearest-neighbors graph
+        and for clustering.
+    cluster_res (default 2.0)
         Cluster resolution for the Leiden community detection algorithm.
         A higher resolution produces more fine-grained, smaller clusters.
     """
@@ -238,7 +245,8 @@ def normalize_and_cluster(
         sys.exit("The function 'normalize_and_cluster' requires that scanpy package be installed. To install scanpy, run 'pip install scanpy'")
     sc.pp.normalize_total(adata, target_sum=1e6)
     sc.pp.log1p(adata)
-    sc.pp.pca(adata, n_comps=n_pca_components)
+    sc.pp.highly_variable_genes(adata, n_top_genes=n_top_genes)
+    sc.pp.pca(adata, n_comps=n_pca_components, use_highly_variable=True)
     sc.pp.neighbors(adata, n_neighbors=n_neighbors)
     sc.tl.leiden(adata, resolution=cluster_res)
 
