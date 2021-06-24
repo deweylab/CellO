@@ -174,7 +174,8 @@ def main():
         cell_to_clust=cell_to_cluster,
         log_dir=log_dir,
         res=1.0,
-        remove_anatomical_subterms=remove_anatomical_subterms
+        remove_anatomical_subterms=remove_anatomical_subterms,
+        rsrc_loc=rsrc_loc
     )
 
     # Convert to human-readable ontology terms
@@ -216,7 +217,8 @@ def run_cello(
         cell_to_clust=None,
         log_dir=None,
         res=1.0,
-        remove_anatomical_subterms=None
+        remove_anatomical_subterms=None,
+        rsrc_loc=None
     ):
     # Get units into log(TPM+1)
     if assay == FULL_LENGTH_ASSAY:
@@ -257,7 +259,8 @@ def run_cello(
         algo=algo,
         clust_key=clust_key,
         log_dir=log_dir,
-        remove_anatomical_subterms=remove_anatomical_subterms
+        remove_anatomical_subterms=remove_anatomical_subterms,
+        rsrc_loc=rsrc_loc
     )
 
     return results_df, finalized_binary_results_df, ms_results_df
