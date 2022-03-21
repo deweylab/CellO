@@ -426,7 +426,7 @@ def _raw_probabilities(
                 """.format(clust_key)
             )
 
-        ad_clust = _combine_by_cluster(ad)
+        ad_clust = _combine_by_cluster(ad, clust_key=clust_key)
         # If there's only one cluster, expand dimensions of expression
         # matrix. AnnData shrinks it, so we need to keep it as a Numpy
         # array.
