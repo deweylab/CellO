@@ -189,7 +189,7 @@ def main():
             for x in finalized_binary_results_df.columns
         ]
         ms_results_df['most_specific_cell_type'] = [
-            ou.cell_ontology().id_to_term[x].name
+            ou.cell_ontology().id_to_term[x].name if x != '' else 'Unknown'
             for x in ms_results_df['most_specific_cell_type']
         ]
 
