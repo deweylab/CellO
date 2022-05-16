@@ -251,7 +251,7 @@ def normalize_and_cluster(
     sc.tl.leiden(adata, resolution=cluster_res)
 
 
-def cello_probs(adata, cell_or_clust, rsrc_loc, p_thresh, width=10, height=10, clust_key=None, dpi=300):
+def cello_probs(adata, cell_or_clust, rsrc_loc, p_thresh, width=10, height=10, clust_key=None, dpi=300, return_graph=False):
     results_df = adata.obs[[col for col in adata.uns['CellO_column_mappings']]]
     results_df.columns = [
         adata.uns['CellO_column_mappings'][c] for c in results_df.columns
@@ -294,7 +294,11 @@ def cello_probs(adata, cell_or_clust, rsrc_loc, p_thresh, width=10, height=10, c
     plt.yticks([])
     plt.imshow(im)
     plt.show()
-    return fig, ax
+
+    if return_graph:
+        return fig, ax, g
+    else:
+        return fig, ax
 
 
 def write_to_tsv(adata, filename):
@@ -310,6 +314,3 @@ def write_to_tsv(adata, filename):
     ]
     df = adata.obs[keep_cols]
     df.to_csv(filename, sep='\t')
-
-
-
