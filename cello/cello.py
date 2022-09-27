@@ -451,8 +451,8 @@ def _aggregate_expression(X):
     and columns correspond to genes, aggregate the counts
     to form a psuedo-bulk expression profile.
     """
-    X = (np.exp(X)-1) / 1e6
-    x_clust = np.sum(X, axis=0)
+    X = np.expm1(X) / 1e6
+    x_clust = np.squeeze(np.array(np.sum(X, axis=0)))
     sum_x_clust = float(sum(x_clust))
     x_clust = np.array([x/sum_x_clust for x in x_clust])
     x_clust *= 1e6
