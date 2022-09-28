@@ -24,7 +24,7 @@ with open("README.rst", "r", encoding="utf-8") as fh:
 
 setup(
     name="cello_classify",
-    version="2.0.3",
+    version="2.1.0",
     description="CellO",
     author="Matthew N. Bernstein",
     author_email="mbernstein@morgridge.org",
