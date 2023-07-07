@@ -20,7 +20,7 @@ def download(dest):
             """
         )
     cmds = [
-        'curl http://deweylab.biostat.wisc.edu/cell_type_classification/resources_v2.0.0.tar.gz > {}'.format(
+        'curl https://deweylab.biostat.wisc.edu/cell_type_classification/resources_v2.0.0.tar.gz > {}'.format(
             join(dest, 'resources_v2.0.0.tar.gz')
         ),
         'tar -C {} -zxf resources_v2.0.0.tar.gz'.format(dest),
